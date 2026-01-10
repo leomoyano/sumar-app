@@ -21,7 +21,7 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const result = login(loginData.email, loginData.password);
+    const result = await login(loginData.email, loginData.password);
     
     if (result.success) {
       toast.success('¡Bienvenido de nuevo!');
@@ -43,10 +43,10 @@ const Login = () => {
       return;
     }
     
-    const result = register(registerData.email, registerData.password, registerData.name);
+    const result = await register(registerData.email, registerData.password, registerData.name);
     
     if (result.success) {
-      toast.success('¡Cuenta creada exitosamente!');
+      toast.success('¡Cuenta creada exitosamente! Revisa tu email para confirmar.');
       navigate('/dashboard');
     } else {
       toast.error(result.error || 'Error al registrarse');

@@ -52,24 +52,32 @@ const ExpenseTable = () => {
     return { ars: totalARS, usd: totalUSD };
   }, [filteredExpenses, rate]);
 
-  const handleAddExpense = (expense: { name: string; amount: number; tags: string[]; amountUSD?: number }) => {
+  const handleAddExpense = async (expense: { name: string; amount: number; tags: string[]; amountUSD?: number }) => {
     if (!tableId) return;
     
-    addExpense(tableId, {
-      name: expense.name,
-      amount: expense.amount,
-      tags: expense.tags,
-      amountUSD: expense.amountUSD,
-    });
-    
-    toast.success('Gasto agregado');
-    setIsDialogOpen(false);
+    try {
+      await addExpense(tableId, {
+        name: expense.name,
+        amount: expense.amount,
+        tags: expense.tags,
+        amountUSD: expense.amountUSD,
+      });
+      
+      toast.success('Gasto agregado');
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast.error('Error al agregar el gasto');
+    }
   };
 
-  const handleDeleteExpense = (expenseId: string, expenseName: string) => {
+  const handleDeleteExpense = async (expenseId: string, expenseName: string) => {
     if (!tableId) return;
-    deleteExpense(tableId, expenseId);
-    toast.success(`Gasto "${expenseName}" eliminado`);
+    try {
+      await deleteExpense(tableId, expenseId);
+      toast.success(`Gasto "${expenseName}" eliminado`);
+    } catch (error) {
+      toast.error('Error al eliminar el gasto');
+    }
   };
 
   if (isLoading) {
