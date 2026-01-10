@@ -27,21 +27,29 @@ const Dashboard = () => {
     table.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCreateTable = () => {
+  const handleCreateTable = async () => {
     if (!newTableName.trim()) {
       toast.error('El nombre de la tabla es requerido');
       return;
     }
     
-    createTable(newTableName.trim());
-    toast.success(`Tabla "${newTableName}" creada`);
-    setNewTableName('');
-    setIsDialogOpen(false);
+    try {
+      await createTable(newTableName.trim());
+      toast.success(`Tabla "${newTableName}" creada`);
+      setNewTableName('');
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast.error('Error al crear la tabla');
+    }
   };
 
-  const handleDeleteTable = (tableId: string, tableName: string) => {
-    deleteTableById(tableId);
-    toast.success(`Tabla "${tableName}" eliminada`);
+  const handleDeleteTable = async (tableId: string, tableName: string) => {
+    try {
+      await deleteTableById(tableId);
+      toast.success(`Tabla "${tableName}" eliminada`);
+    } catch (error) {
+      toast.error('Error al eliminar la tabla');
+    }
   };
 
   const calculateTableTotal = (expenses: { amount: number }[]) => {
