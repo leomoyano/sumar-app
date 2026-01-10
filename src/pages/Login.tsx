@@ -61,7 +61,7 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-center">
         <div className="max-w-md mx-auto space-y-8">
           <h1 className="text-4xl font-bold text-primary-foreground">
-            GastosApp
+            MisGastos
           </h1>
           <p className="text-primary-foreground/80 text-lg">
             Tu compañero inteligente para gestionar gastos mensuales
