@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Wallet, TrendingUp, Shield } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,9 +61,12 @@ const Login = () => {
       {/* Left Panel - Features */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-center">
         <div className="max-w-md mx-auto space-y-8">
-          <h1 className="text-4xl font-bold text-primary-foreground">
-            MisGastos
-          </h1>
+          <div className="flex items-center gap-4">
+            <img src={logo} alt="MisGastos Logo" className="h-16 w-16 rounded-xl" />
+            <h1 className="text-4xl font-bold text-primary-foreground">
+              MisGastos
+            </h1>
+          </div>
           <p className="text-primary-foreground/80 text-lg">
             Tu compañero inteligente para gestionar gastos mensuales
           </p>
@@ -111,6 +115,7 @@ const Login = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
+            <img src={logo} alt="MisGastos Logo" className="h-12 w-12 mx-auto mb-2 rounded-lg lg:hidden" />
             <CardTitle className="text-2xl font-bold">Bienvenido</CardTitle>
             <CardDescription>
               Inicia sesión o crea una cuenta para comenzar
