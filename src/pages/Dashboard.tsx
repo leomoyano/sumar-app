@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTables } from '@/hooks/useTables';
 import { useDollarRate } from '@/hooks/useDollarRate';
 import { formatARS } from '@/lib/format';
@@ -13,9 +14,11 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 const Dashboard = () => {
   const { user, logout } = useAuthContext();
+  const { t } = useLanguage();
   const { tables, createTable, deleteTableById, isLoading } = useTables(user?.id);
   const { rate, dollarInfo, isLoading: isLoadingRate, refetch: refetchRate } = useDollarRate();
   
@@ -29,26 +32,26 @@ const Dashboard = () => {
 
   const handleCreateTable = async () => {
     if (!newTableName.trim()) {
-      toast.error('El nombre de la tabla es requerido');
+      toast.error(t('dashboard.newTable.name'));
       return;
     }
     
     try {
       await createTable(newTableName.trim());
-      toast.success(`Tabla "${newTableName}" creada`);
+      toast.success(`${t('dashboard.newTable.title')}: "${newTableName}"`);
       setNewTableName('');
       setIsDialogOpen(false);
     } catch (error) {
-      toast.error('Error al crear la tabla');
+      toast.error(t('common.error'));
     }
   };
 
   const handleDeleteTable = async (tableId: string, tableName: string) => {
     try {
       await deleteTableById(tableId);
-      toast.success(`Tabla "${tableName}" eliminada`);
+      toast.success(`${t('dashboard.deleteTable.confirm')}: "${tableName}"`);
     } catch (error) {
-      toast.error('Error al eliminar la tabla');
+      toast.error(t('common.error'));
     }
   };
 
@@ -73,16 +76,19 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Hola, {user?.name}
+              {t('dashboard.welcome')}, {user?.name}
             </h1>
             <p className="text-muted-foreground">
-              Gestiona tus tablas de gastos mensuales
+              {t('login.subtitle')}
             </p>
           </div>
-          <Button variant="outline" onClick={logout} className="gap-2">
-            <LogOut className="h-4 w-4" />
-            Cerrar Sesión
-          </Button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitch />
+            <Button variant="outline" onClick={logout} className="gap-2">
+              <LogOut className="h-4 w-4" />
+              {t('dashboard.logout')}
+            </Button>
+          </div>
         </div>
 
         {/* Dollar Rate Card */}
@@ -94,7 +100,7 @@ const Dashboard = () => {
                   <DollarSign className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Dólar Blue</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.dollarRate')}</p>
                   <p className="font-semibold text-foreground">
                     {formatARS(rate)}
                   </p>
@@ -112,7 +118,7 @@ const Dashboard = () => {
             </div>
             {dollarInfo && (
               <p className="text-xs text-muted-foreground mt-2">
-                Compra: {formatARS(dollarInfo.compra)} | Venta: {formatARS(dollarInfo.venta)}
+                {t('dashboard.dollarRate.buy')}: {formatARS(dollarInfo.compra)} | {t('dashboard.dollarRate.sell')}: {formatARS(dollarInfo.venta)}
               </p>
             )}
           </CardContent>
@@ -123,7 +129,7 @@ const Dashboard = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar tablas..."
+              placeholder={t('dashboard.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -134,22 +140,22 @@ const Dashboard = () => {
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                Nueva Tabla
+                {t('dashboard.newTable')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Crear Nueva Tabla</DialogTitle>
+                <DialogTitle>{t('dashboard.newTable.title')}</DialogTitle>
                 <DialogDescription>
-                  Ingresa el nombre de la tabla mensual (ej: Enero 2026)
+                  {t('dashboard.newTable.description')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="table-name">Nombre de la Tabla</Label>
+                  <Label htmlFor="table-name">{t('dashboard.newTable.name')}</Label>
                   <Input
                     id="table-name"
-                    placeholder="Enero 2026"
+                    placeholder={t('dashboard.newTable.placeholder')}
                     value={newTableName}
                     onChange={(e) => setNewTableName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCreateTable()}
@@ -158,10 +164,10 @@ const Dashboard = () => {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancelar
+                  {t('dashboard.newTable.cancel')}
                 </Button>
                 <Button onClick={handleCreateTable}>
-                  Crear Tabla
+                  {t('dashboard.newTable.create')}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -174,17 +180,15 @@ const Dashboard = () => {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {searchQuery ? 'No se encontraron tablas' : 'Sin tablas creadas'}
+                {t('dashboard.noTables')}
               </h3>
               <p className="text-muted-foreground text-center mb-4">
-                {searchQuery 
-                  ? 'Intenta con otro término de búsqueda'
-                  : 'Crea tu primera tabla mensual para comenzar'}
+                {t('dashboard.newTable.description')}
               </p>
               {!searchQuery && (
                 <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Crear Primera Tabla
+                  {t('dashboard.newTable')}
                 </Button>
               )}
             </CardContent>
@@ -202,7 +206,7 @@ const Dashboard = () => {
                       <div>
                         <CardTitle className="text-lg">{table.name}</CardTitle>
                         <CardDescription>
-                          {table.expenses.length} gasto{table.expenses.length !== 1 ? 's' : ''}
+                          {table.expenses.length} {table.expenses.length !== 1 ? t('dashboard.expenses') : t('dashboard.expense')}
                         </CardDescription>
                       </div>
                       <AlertDialog>
@@ -217,18 +221,18 @@ const Dashboard = () => {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>¿Eliminar tabla?</AlertDialogTitle>
+                            <AlertDialogTitle>{t('dashboard.deleteTable.title')}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Esta acción eliminará permanentemente la tabla "{table.name}" y todos sus gastos.
+                              {t('dashboard.deleteTable.description')}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogCancel>{t('dashboard.deleteTable.cancel')}</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDeleteTable(table.id, table.name)}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Eliminar
+                              {t('dashboard.deleteTable.confirm')}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -248,7 +252,7 @@ const Dashboard = () => {
                       </p>
                       <Link to={`/table/${table.id}`}>
                         <Button variant="outline" className="w-full mt-2">
-                          Ver Detalles
+                          {t('expenseTable.back').replace('Volver', 'Ver').replace('Back', 'View')}
                         </Button>
                       </Link>
                     </div>
