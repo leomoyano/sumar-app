@@ -14,10 +14,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { Plus, ArrowLeft, Trash2, Tag, Calculator } from 'lucide-react';
+import { Plus, ArrowLeft, Trash2, Tag, Calculator, BarChart3 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import ExpenseForm from '@/components/ExpenseForm';
 import TagFilter from '@/components/TagFilter';
+import ExpenseBarChart from '@/components/charts/ExpenseBarChart';
+import ExpensePieChart from '@/components/charts/ExpensePieChart';
 
 const ExpenseTable = () => {
   const { tableId } = useParams<{ tableId: string }>();
@@ -163,6 +165,14 @@ const ExpenseTable = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Charts Section */}
+        {table.expenses.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <ExpenseBarChart expenses={filteredExpenses} />
+            <ExpensePieChart expenses={filteredExpenses} />
+          </div>
+        )}
 
         {/* Tag Filter */}
         {allTags.length > 0 && (
