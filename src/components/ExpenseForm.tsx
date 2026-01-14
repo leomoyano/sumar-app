@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { DEFAULT_TAGS } from '@/types';
 import { convertARStoUSD } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { DialogFooter } from '@/components/ui/dialog';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
+import { useTags, Tag } from '@/hooks/useTags';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface ExpenseFormProps {
   onSubmit: (expense: { name: string; amount: number; tags: string[]; amountUSD?: number }) => void;
@@ -14,10 +16,13 @@ interface ExpenseFormProps {
 }
 
 const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
+  const { user } = useAuth();
+  const { tags, addTag, isLoading: tagsLoading } = useTags(user?.id);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState('');
+  const [isAddingTag, setIsAddingTag] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +52,36 @@ const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
     );
   };
 
-  const addCustomTag = () => {
-    const tag = customTag.trim();
-    if (tag && !selectedTags.includes(tag)) {
-      setSelectedTags(prev => [...prev, tag]);
+  const addCustomTag = async () => {
+    const tagName = customTag.trim();
+    if (!tagName) return;
+    
+    // Check if already selected
+    if (selectedTags.includes(tagName)) {
+      setCustomTag('');
+      return;
+    }
+
+    // Check if tag already exists in the list
+    const existingTag = tags.find(t => t.name.toLowerCase() === tagName.toLowerCase());
+    if (existingTag) {
+      setSelectedTags(prev => [...prev, existingTag.name]);
+      setCustomTag('');
+      return;
+    }
+
+    // Add new tag to database
+    setIsAddingTag(true);
+    try {
+      const newTag = await addTag(tagName);
+      if (newTag) {
+        setSelectedTags(prev => [...prev, newTag.name]);
+        toast.success(`Etiqueta "${newTag.name}" creada`);
+      }
+    } catch (error) {
+      toast.error('Error al crear la etiqueta');
+    } finally {
+      setIsAddingTag(false);
       setCustomTag('');
     }
   };
@@ -96,18 +127,26 @@ const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
 
       <div className="space-y-2">
         <Label>Etiquetas</Label>
-        <div className="flex flex-wrap gap-2">
-          {DEFAULT_TAGS.map((tag) => (
-            <Badge
-              key={tag}
-              variant={selectedTags.includes(tag) ? "default" : "outline"}
-              className="cursor-pointer transition-colors"
-              onClick={() => toggleTag(tag)}
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
+        {tagsLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Cargando etiquetas...</span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <Badge
+                key={tag.id}
+                variant={selectedTags.includes(tag.name) ? "default" : "outline"}
+                className="cursor-pointer transition-colors"
+                onClick={() => toggleTag(tag.name)}
+              >
+                {tag.name}
+                {tag.isCustom && <span className="ml-1 opacity-60">•</span>}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedTags.length > 0 && (
