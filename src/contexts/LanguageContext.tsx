@@ -11,7 +11,7 @@ interface LanguageContextType {
 const translations: Record<Language, Record<string, string>> = {
   es: {
     // Login
-    'login.title': 'MisGastos',
+    'login.title': 'Sumar',
     'login.subtitle': 'Tu gestor de finanzas personales',
     'login.features.tracking': 'Seguimiento de gastos mensuales',
     'login.features.categories': 'Categorías personalizables',
@@ -105,7 +105,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     // Login
-    'login.title': 'MyExpenses',
+    'login.title': 'Sumar',
     'login.subtitle': 'Your personal finance manager',
     'login.features.tracking': 'Monthly expense tracking',
     'login.features.categories': 'Customizable categories',
