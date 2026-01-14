@@ -19,6 +19,7 @@ import TagFilter from '@/components/TagFilter';
 import ExpenseBarChart from '@/components/charts/ExpenseBarChart';
 import ExpensePieChart from '@/components/charts/ExpensePieChart';
 import LanguageSwitch from '@/components/LanguageSwitch';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const ExpenseTable = () => {
   const { tableId } = useParams<{ tableId: string }>();
@@ -125,6 +126,7 @@ const ExpenseTable = () => {
           </div>
           
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitch />
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>

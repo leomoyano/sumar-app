@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LanguageSwitch from '@/components/LanguageSwitch';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Dashboard = () => {
   const { user, logout } = useAuthContext();
@@ -83,6 +84,7 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitch />
             <Button variant="outline" onClick={logout} className="gap-2">
               <LogOut className="h-4 w-4" />
