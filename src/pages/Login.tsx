@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Wallet, TrendingUp, Shield } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import LanguageSwitch from '@/components/LanguageSwitch';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -107,8 +108,9 @@ const Login = () => {
 
       {/* Right Panel - Auth Forms */}
       <div className="w-full lg:w-1/2 flex flex-col">
-        {/* Language Switch - Top Right */}
-        <div className="flex justify-end p-4">
+        {/* Language Switch & Theme Toggle - Top Right */}
+        <div className="flex justify-end items-center gap-2 p-4">
+          <ThemeToggle />
           <LanguageSwitch />
         </div>
         
