@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -11,36 +11,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
 
+const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 const Dashboard = () => {
   const { user, logout } = useAuthContext();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { tables, createTable, deleteTableById, isLoading } = useTables(user?.id);
   const { rate, dollarInfo, isLoading: isLoadingRate, refetch: refetchRate } = useDollarRate();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [newTableName, setNewTableName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<string>(String(currentDate.getMonth()));
+  const [selectedYear, setSelectedYear] = useState<string>(String(currentDate.getFullYear()));
+  
+  const months = language === 'es' ? MONTHS_ES : MONTHS_EN;
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+  }, []);
 
   const filteredTables = tables.filter(table =>
     table.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const generateTableName = () => {
+    const monthName = months[parseInt(selectedMonth)];
+    return `${monthName} ${selectedYear}`;
+  };
+
   const handleCreateTable = async () => {
-    if (!newTableName.trim()) {
-      toast.error(t('dashboard.newTable.name'));
+    const tableName = generateTableName();
+    
+    // Check if table already exists
+    const exists = tables.some(t => t.name.toLowerCase() === tableName.toLowerCase());
+    if (exists) {
+      toast.error(language === 'es' 
+        ? `Ya existe una tabla para ${tableName}` 
+        : `A table for ${tableName} already exists`);
       return;
     }
     
     try {
-      await createTable(newTableName.trim());
-      toast.success(`${t('dashboard.newTable.title')}: "${newTableName}"`);
-      setNewTableName('');
+      await createTable(tableName);
+      toast.success(`${t('dashboard.newTable.title')}: "${tableName}"`);
       setIsDialogOpen(false);
     } catch (error) {
       toast.error(t('common.error'));
@@ -149,20 +172,47 @@ const Dashboard = () => {
               <DialogHeader>
                 <DialogTitle>{t('dashboard.newTable.title')}</DialogTitle>
                 <DialogDescription>
-                  {t('dashboard.newTable.description')}
+                  {language === 'es' 
+                    ? 'Selecciona el mes y año para tu tabla de gastos.' 
+                    : 'Select the month and year for your expense table.'}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="table-name">{t('dashboard.newTable.name')}</Label>
-                  <Input
-                    id="table-name"
-                    placeholder={t('dashboard.newTable.placeholder')}
-                    value={newTableName}
-                    onChange={(e) => setNewTableName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleCreateTable()}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{language === 'es' ? 'Mes' : 'Month'}</Label>
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {months.map((month, index) => (
+                          <SelectItem key={index} value={String(index)}>
+                            {month}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'es' ? 'Año' : 'Year'}</Label>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year} value={String(year)}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'es' ? 'Se creará:' : 'Will create:'} <strong>{generateTableName()}</strong>
+                </p>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
