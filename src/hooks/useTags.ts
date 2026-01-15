@@ -9,13 +9,13 @@ export interface Tag {
 }
 
 export const useTags = (userId: string | undefined) => {
-  const [customTags, setCustomTags] = useState<Tag[]>([]);
+  const [customTags, setCustomTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Combine default tags with custom tags
   const allTags: Tag[] = [
     ...DEFAULT_TAGS.map(name => ({ id: name, name, isCustom: false })),
-    ...customTags,
+    ...customTags.map(name => ({ id: `custom-${name}`, name, isCustom: true })),
   ];
 
   const loadTags = useCallback(async () => {
@@ -27,18 +27,14 @@ export const useTags = (userId: string | undefined) => {
 
     try {
       const { data, error } = await supabase
-        .from('tags')
-        .select('*')
+        .from('profiles')
+        .select('tags')
         .eq('user_id', userId)
-        .order('name');
+        .single();
 
       if (error) throw error;
 
-      setCustomTags((data || []).map(tag => ({
-        id: tag.id,
-        name: tag.name,
-        isCustom: true,
-      })));
+      setCustomTags(data?.tags || []);
     } catch (error) {
       console.error('Error loading tags:', error);
     } finally {
@@ -58,44 +54,48 @@ export const useTags = (userId: string | undefined) => {
       return null;
     }
 
-    const { data, error } = await supabase
-      .from('tags')
-      .insert({ name, user_id: userId })
-      .select()
-      .single();
+    const newTags = [...customTags, name];
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ tags: newTags })
+      .eq('user_id', userId);
 
     if (error) {
       console.error('Error adding tag:', error);
       throw error;
     }
 
-    const newTag: Tag = {
-      id: data.id,
-      name: data.name,
+    setCustomTags(newTags);
+    
+    return {
+      id: `custom-${name}`,
+      name,
       isCustom: true,
     };
+  }, [userId, allTags, customTags]);
 
-    setCustomTags(prev => [...prev, newTag]);
-    return newTag;
-  }, [userId, allTags]);
+  const deleteTag = useCallback(async (tagName: string) => {
+    if (!userId) throw new Error('Usuario no autenticado');
 
-  const deleteTag = useCallback(async (tagId: string) => {
+    const newTags = customTags.filter(t => t !== tagName);
+
     const { error } = await supabase
-      .from('tags')
-      .delete()
-      .eq('id', tagId);
+      .from('profiles')
+      .update({ tags: newTags })
+      .eq('user_id', userId);
 
     if (error) {
       console.error('Error deleting tag:', error);
       throw error;
     }
 
-    setCustomTags(prev => prev.filter(t => t.id !== tagId));
-  }, []);
+    setCustomTags(newTags);
+  }, [userId, customTags]);
 
   return {
     tags: allTags,
-    customTags,
+    customTags: customTags.map(name => ({ id: `custom-${name}`, name, isCustom: true })),
     isLoading,
     addTag,
     deleteTag,
