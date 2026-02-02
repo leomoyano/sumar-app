@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTables } from '@/hooks/useTables';
+import { useFixedExpenses } from '@/hooks/useFixedExpenses';
 import { useDollarRate } from '@/hooks/useDollarRate';
 import { formatARS } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -12,8 +13,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp } from 'lucide-react';
+import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -24,11 +27,13 @@ const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July
 const Dashboard = () => {
   const { user, logout } = useAuthContext();
   const { t, language } = useLanguage();
-  const { tables, createTable, deleteTableById, isLoading } = useTables(user?.id);
+  const { tables, createTable, deleteTableById, addExpense, isLoading } = useTables(user?.id);
+  const { fixedExpenses, getActiveExpenses } = useFixedExpenses(user?.id);
   const { rate, dollarInfo, isLoading: isLoadingRate, refetch: refetchRate } = useDollarRate();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedFixedExpenses, setSelectedFixedExpenses] = useState<string[]>([]);
   
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState<string>(String(currentDate.getMonth()));
@@ -49,6 +54,27 @@ const Dashboard = () => {
     return `${monthName} ${selectedYear}`;
   };
 
+  // Initialize selected fixed expenses when dialog opens
+  const handleOpenDialog = (open: boolean) => {
+    if (open) {
+      const activeIds = getActiveExpenses().map(exp => exp.id);
+      setSelectedFixedExpenses(activeIds);
+    }
+    setIsDialogOpen(open);
+  };
+
+  const toggleFixedExpense = (id: string) => {
+    setSelectedFixedExpenses(prev =>
+      prev.includes(id)
+        ? prev.filter(expId => expId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const selectedFixedTotal = fixedExpenses
+    .filter(exp => selectedFixedExpenses.includes(exp.id))
+    .reduce((sum, exp) => sum + exp.amount, 0);
+
   const handleCreateTable = async () => {
     const tableName = generateTableName();
     
@@ -62,7 +88,20 @@ const Dashboard = () => {
     }
     
     try {
-      await createTable(tableName);
+      const newTable = await createTable(tableName);
+      
+      // Add selected fixed expenses to the new table
+      if (newTable && selectedFixedExpenses.length > 0) {
+        const expensesToAdd = fixedExpenses.filter(exp => selectedFixedExpenses.includes(exp.id));
+        for (const fixedExp of expensesToAdd) {
+          await addExpense(newTable.id, {
+            name: fixedExp.name,
+            amount: fixedExp.amount,
+            tags: fixedExp.tags,
+          });
+        }
+      }
+      
       toast.success(`${t('dashboard.newTable.title')}: "${tableName}"`);
       setIsDialogOpen(false);
     } catch (error) {
@@ -161,14 +200,21 @@ const Dashboard = () => {
             />
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Link to="/fixed-expenses">
+            <Button variant="outline" className="gap-2 w-full sm:w-auto">
+              <Repeat className="h-4 w-4" />
+              {t('fixedExpenses.title')}
+            </Button>
+          </Link>
+          
+          <Dialog open={isDialogOpen} onOpenChange={handleOpenDialog}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
                 {t('dashboard.newTable')}
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>{t('dashboard.newTable.title')}</DialogTitle>
                 <DialogDescription>
@@ -213,6 +259,47 @@ const Dashboard = () => {
                 <p className="text-sm text-muted-foreground">
                   {language === 'es' ? 'Se creará:' : 'Will create:'} <strong>{generateTableName()}</strong>
                 </p>
+                
+                {/* Fixed Expenses Section */}
+                {fixedExpenses.length > 0 && (
+                  <>
+                    <Separator />
+                    <div className="space-y-3">
+                      <Label>{t('fixedExpenses.includeInTable')}</Label>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {fixedExpenses.map(expense => (
+                          <div 
+                            key={expense.id} 
+                            className="flex items-center justify-between p-2 rounded-md border"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={expense.id}
+                                checked={selectedFixedExpenses.includes(expense.id)}
+                                onCheckedChange={() => toggleFixedExpense(expense.id)}
+                              />
+                              <label 
+                                htmlFor={expense.id} 
+                                className="text-sm cursor-pointer"
+                              >
+                                {expense.name}
+                              </label>
+                            </div>
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {formatARS(expense.amount)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {selectedFixedExpenses.length > 0 && (
+                        <div className="flex justify-between text-sm font-medium pt-2 border-t">
+                          <span>{t('fixedExpenses.selectedTotal')}:</span>
+                          <span className="text-primary">{formatARS(selectedFixedTotal)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>

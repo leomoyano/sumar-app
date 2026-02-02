@@ -58,6 +58,39 @@ export type Database = {
           },
         ]
       }
+      fixed_expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       monthly_tables: {
         Row: {
           created_at: string

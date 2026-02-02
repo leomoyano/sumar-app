@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ExpenseTable from "./pages/ExpenseTable";
+import FixedExpenses from "./pages/FixedExpenses";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -74,6 +75,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <ExpenseTable />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/fixed-expenses" 
+      element={
+        <ProtectedRoute>
+          <FixedExpenses />
         </ProtectedRoute>
       } 
     />
