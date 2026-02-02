@@ -95,6 +95,15 @@ const translations: Record<Language, Record<string, string>> = {
     'language.spanish': 'Español',
     'language.english': 'English',
     
+    // Fixed Expenses
+    'fixedExpenses.title': 'Gastos Fijos',
+    'fixedExpenses.add': 'Agregar Gasto Fijo',
+    'fixedExpenses.empty': 'No tienes gastos fijos configurados',
+    'fixedExpenses.active': 'Activo',
+    'fixedExpenses.inactive': 'Inactivo',
+    'fixedExpenses.includeInTable': 'Incluir gastos fijos',
+    'fixedExpenses.selectedTotal': 'Total seleccionado',
+    
     // Common
     'common.loading': 'Cargando...',
     'common.error': 'Error',
@@ -188,6 +197,15 @@ const translations: Record<Language, Record<string, string>> = {
     // Language
     'language.spanish': 'Español',
     'language.english': 'English',
+    
+    // Fixed Expenses
+    'fixedExpenses.title': 'Fixed Expenses',
+    'fixedExpenses.add': 'Add Fixed Expense',
+    'fixedExpenses.empty': "You don't have any fixed expenses configured",
+    'fixedExpenses.active': 'Active',
+    'fixedExpenses.inactive': 'Inactive',
+    'fixedExpenses.includeInTable': 'Include fixed expenses',
+    'fixedExpenses.selectedTotal': 'Selected total',
     
     // Common
     'common.loading': 'Loading...',
