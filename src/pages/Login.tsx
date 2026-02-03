@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -15,12 +15,19 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, register } = useAuthContext();
+  const { login, register, isAuthenticated, isLoading } = useAuthContext();
   const { t } = useLanguage();
   
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ email: '', password: '', name: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirigir cuando el usuario se autentique exitosamente
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +37,11 @@ const Login = () => {
     
     if (result.success) {
       toast.success(t('dashboard.welcome') + '!');
-      navigate('/dashboard');
+      // La redirección ocurre automáticamente via useEffect cuando isAuthenticated cambia
     } else {
       toast.error(result.error || 'Error');
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -52,12 +58,11 @@ const Login = () => {
     
     if (result.success) {
       toast.success(t('dashboard.welcome') + '!');
-      navigate('/dashboard');
+      // La redirección ocurre automáticamente via useEffect cuando isAuthenticated cambia
     } else {
       toast.error(result.error || 'Error');
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
   return (
