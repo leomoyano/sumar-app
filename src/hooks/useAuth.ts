@@ -30,27 +30,48 @@ export const useAuth = () => {
   }, []);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let isMounted = true;
+    
+    // Check for existing session first
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (isMounted) {
+          if (session?.user) {
+            const transformedUser = await transformUser(session.user);
+            setUser(transformedUser);
+          } else {
+            setUser(null);
+          }
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    initializeAuth();
+
+    // Set up auth state listener for future changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+      
       if (session?.user) {
         const transformedUser = await transformUser(session.user);
-        setUser(transformedUser);
+        if (isMounted) setUser(transformedUser);
       } else {
         setUser(null);
       }
-      setIsLoading(false);
     });
 
-    // Then check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const transformedUser = await transformUser(session.user);
-        setUser(transformedUser);
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [transformUser]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
