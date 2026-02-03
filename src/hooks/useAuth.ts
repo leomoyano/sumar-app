@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -8,71 +8,124 @@ export interface User {
   name: string;
 }
 
+// Safety timeout to prevent infinite loading (5 seconds)
+const AUTH_TIMEOUT_MS = 5000;
+
+// Fast synchronous user creation (doesn't block UI)
+const getBaseUser = (supabaseUser: SupabaseUser): User => ({
+  id: supabaseUser.id,
+  email: supabaseUser.email || '',
+  name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
+});
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isInitialized = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const transformUser = useCallback(async (supabaseUser: SupabaseUser | null): Promise<User | null> => {
-    if (!supabaseUser) return null;
-    
-    // Try to get profile data
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('name')
-      .eq('user_id', supabaseUser.id)
-      .maybeSingle();
-    
-    return {
-      id: supabaseUser.id,
-      email: supabaseUser.email || '',
-      name: profile?.name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
-    };
+  // Background profile enrichment (non-blocking)
+  const enrichUserWithProfile = useCallback(async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (profile?.name) {
+        setUser(prev => prev ? { ...prev, name: profile.name } : null);
+      }
+    } catch (error) {
+      // Profile enrichment is best-effort, don't break anything
+      console.warn('Could not enrich user profile:', error);
+    }
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    // Check for existing session first
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (isMounted) {
-          if (session?.user) {
-            const transformedUser = await transformUser(session.user);
-            setUser(transformedUser);
-          } else {
-            setUser(null);
-          }
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        if (isMounted) {
-          setUser(null);
-          setIsLoading(false);
-        }
-      }
-    };
-    
-    initializeAuth();
+  // Process user and unlock loading state
+  const handleUser = useCallback((supabaseUser: SupabaseUser | null) => {
+    if (supabaseUser) {
+      const baseUser = getBaseUser(supabaseUser);
+      setUser(baseUser);
+      // Enrich in background (non-blocking)
+      enrichUserWithProfile(supabaseUser.id);
+    } else {
+      setUser(null);
+    }
+  }, [enrichUserWithProfile]);
 
-    // Set up auth state listener for future changes
+  useEffect(() => {
+    // Prevent double initialization in React StrictMode
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    let isMounted = true;
+
+    // Safety timeout - force unlock loading after timeout
+    timeoutRef.current = setTimeout(() => {
+      if (isMounted && isLoading) {
+        console.warn('Auth initialization timed out, forcing loading to false');
+        setIsLoading(false);
+      }
+    }, AUTH_TIMEOUT_MS);
+
+    // 1. Set up auth state listener FIRST (recommended pattern)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       
-      if (session?.user) {
-        const transformedUser = await transformUser(session.user);
-        if (isMounted) setUser(transformedUser);
-      } else {
+      try {
+        handleUser(session?.user || null);
+      } catch (error) {
+        console.error('Error in auth state change handler:', error);
         setUser(null);
+      } finally {
+        // Always unlock loading on any auth event
+        setIsLoading(false);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
       }
     });
+
+    // 2. Check for existing session AFTER setting up listener
+    const initializeSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (isMounted) {
+          handleUser(session?.user || null);
+        }
+      } catch (error) {
+        console.error('Error initializing session:', error);
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+        }
+      }
+    };
+
+    initializeSession();
 
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
-  }, [transformUser]);
+  }, [handleUser, isLoading]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
