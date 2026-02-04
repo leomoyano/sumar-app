@@ -1,78 +1,93 @@
 
-## Objetivo
-Eliminar la “pantalla en blanco con loader” asegurando que el estado `isLoading` de auth **siempre** se resuelva (pase a `false`) y que cualquier error de inicialización no deje la app bloqueada en el spinner.
+## Problema Identificado
+
+Actualmente, cuando un gasto tiene múltiples etiquetas (ej: "Comida" + "Entretenimiento"), el monto completo se suma a **cada** etiqueta en los gráficos. Esto causa:
+
+1. **Duplicación visual**: Un gasto de $10,000 con 3 tags aparece como $30,000 en el total del gráfico
+2. **Distorsión de porcentajes**: El pie chart muestra porcentajes inflados
+3. **Confusión del usuario**: Parece que hay más gastos de los que realmente existen
 
 ---
 
-## Diagnóstico (qué está pasando y por qué)
-- El loader que ves en “todas las ventanas” coincide con el loader de `PublicRoute` / `ProtectedRoute` en `src/App.tsx`, que se muestra mientras `isLoading === true`.
-- En `src/hooks/useAuth.ts`, `isLoading` se pone en `false` **solo** en `initializeAuth()` (después de `getSession()` y, si hay usuario, después de `transformUser()`).
-- Si por algún motivo `getSession()` tarda demasiado, se queda colgado, o `transformUser()` (consulta a `profiles`) se demora/falla de forma que no retorna pronto, entonces **`isLoading` queda true** y la app se queda mostrando el spinner.
-- Además, el callback de `onAuthStateChange` actualmente **no** hace `setIsLoading(false)`, por lo que si el flujo “depende” del evento para desbloquear, puede quedar trabado.
+## Opciones de Solución
+
+### Opción A: Cambiar a Categoría Única (Recomendado)
+Permitir solo **una categoría principal** por gasto. Es el modelo más simple y claro para el usuario.
+
+**Ventajas:**
+- Gráficos precisos y sin duplicación
+- UX más simple y clara
+- Modelo mental fácil de entender
+
+**Cambios necesarios:**
+- Modificar el formulario para seleccionar solo 1 categoría (dropdown o radio buttons)
+- Mantener las tags secundarias como opcionales/adicionales solo para filtrado
+- Los gráficos mostrarán datos 100% precisos
 
 ---
 
-## Enfoque de solución (robusto)
-### A) Hacer que `isLoading` se desbloquee rápido y de forma segura
-1. Reordenar la inicialización para seguir el patrón recomendado:
-   - Suscribirse a `supabase.auth.onAuthStateChange` primero.
-   - Ejecutar `supabase.auth.getSession()` después.
-2. Asegurar que **en ambos caminos** (evento y getSession) se ejecute `setIsLoading(false)` en un `finally`.
-3. Agregar una “red de seguridad” con timeout (ej. 4–6s):
-   - Si por algún motivo nunca resolvió, forzar `setIsLoading(false)` para que al menos redirija a `/login` y no quede infinito.
+### Opción B: Dividir el Monto entre Tags
+Si un gasto tiene N tags, dividir el monto entre ellos (ej: $1000 con 2 tags = $500 por tag).
 
-### B) No bloquear la UI por la consulta a `profiles`
-4. Separar “sesión autenticada” de “perfil enriquecido”:
-   - Cuando haya `session.user`, setear inmediatamente un `User` básico (id/email/name provisional) para desbloquear rutas.
-   - Luego, en background, intentar cargar el `name` desde `profiles` y actualizar el estado si llega.
-5. Envolver la lógica async del listener con `try/catch` para evitar rechazos no manejados.
+**Ventajas:**
+- El total del gráfico coincide con el total real de gastos
+- Mantiene flexibilidad de múltiples tags
 
-### C) Mejorar resiliencia ante errores (para evitar pantallas “en blanco” futuras)
-6. Agregar un Error Boundary a nivel de App para mostrar un fallback con:
-   - Mensaje de error “Algo falló, recargar / volver a login”
-   - Botón “Ir a Login” y “Recargar”
-   Esto evita que un error runtime deje la app inutilizable sin feedback.
+**Desventajas:**
+- Puede ser confuso ("¿Por qué Comida muestra $500 si gasté $1000?")
+- Requiere explicar al usuario cómo funciona
 
 ---
 
-## Cambios concretos (archivos)
-1. **Editar `src/hooks/useAuth.ts`**
-   - Nuevo flujo:
-     - `onAuthStateChange` (setea user + `setIsLoading(false)`)
-     - `getSession()` (setea user + `setIsLoading(false)`)
-     - Timeout de seguridad
-   - Transformación de usuario:
-     - `getBaseUser(supabaseUser)` síncrono (rápido)
-     - `enrichUserWithProfileName(userId)` asíncrono (no bloquea)
-2. **(Opcional pero recomendado) Crear `src/components/ErrorBoundary.tsx`**
-   - Error boundary simple con UI de fallback.
-3. **Editar `src/App.tsx`**
-   - Envolver `AppRoutes` (o el árbol completo dentro de `AuthProvider`) con el Error Boundary.
+### Opción C: Categoría Principal + Tags Secundarios
+Separar en dos conceptos: una **Categoría** (obligatoria, única) y **Tags** opcionales para filtrar.
+
+**Ventajas:**
+- Lo mejor de ambos mundos
+- Gráficos basados en categoría (sin duplicación)
+- Tags para organización y filtrado flexible
+
+**Desventajas:**
+- Requiere más cambios en la base de datos y UI
 
 ---
 
-## Validación / pruebas (lo que vamos a verificar)
-1. Abrir `/login` en una ventana nueva:
-   - Debe verse el login sin spinner infinito.
-2. Ir manualmente a `/fixed-expenses` sin estar logueado:
-   - Debe redirigir a `/login` (sin quedarse cargando).
-3. Loguearse:
-   - Debe ir a `/dashboard`.
-4. Volver a `/fixed-expenses` logueado:
-   - Debe cargar la pantalla normalmente.
-5. Test de regresión del feature:
-   - Crear un gasto fijo.
-   - Crear una nueva tabla y confirmar que aparecen los gastos fijos seleccionados.
+## Plan de Implementación (Opción A - Categoría Única)
+
+### 1. Modificar ExpenseForm
+- Cambiar de selección múltiple de tags a selección única (dropdown/select)
+- Renombrar "Etiquetas" a "Categoría"
+- Mantener campo de tags personalizados para permitir crear nuevas categorías
+
+### 2. Actualizar los Gráficos
+- Simplificar la lógica: cada gasto tiene una sola categoría
+- Si `tags` está vacío o tiene múltiples (datos legacy), usar el primero o "Sin categoría"
+
+### 3. Actualizar tipos y base de datos
+- No requiere cambios en la estructura de DB (seguimos usando el array `tags`, solo usamos el primer elemento)
+- Actualizar tipos en TypeScript para reflejar el nuevo comportamiento
+
+### 4. Migración de datos existentes
+- Los gastos con múltiples tags usarán el primer tag como categoría principal
+- No se pierden datos
 
 ---
 
-## Riesgos y cómo los mitigamos
-- **RLS/tabla `profiles` no disponible**: la app igual funciona porque el “enrichment” es best-effort y no bloquea.
-- **Supabase tarda en refrescar token**: el timeout evita bloqueos infinitos.
-- **Errores runtime nuevos**: el Error Boundary evita pantalla completamente en blanco y ayuda a diagnosticar.
+## Archivos a Modificar
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/components/ExpenseForm.tsx` | Cambiar a Select único para categoría |
+| `src/components/FixedExpenseForm.tsx` | Mismo cambio para gastos fijos |
+| `src/components/charts/ExpenseBarChart.tsx` | Simplificar lógica (usar primer tag) |
+| `src/components/charts/ExpensePieChart.tsx` | Simplificar lógica (usar primer tag) |
+| `src/pages/ExpenseTable.tsx` | Actualizar texto "Etiquetas" → "Categoría" |
+| `src/types/index.ts` | Renombrar DEFAULT_TAGS a DEFAULT_CATEGORIES |
 
 ---
 
-## Resultado esperado
-- Nunca más quedar atrapado en loader infinito.
-- Si hay problemas con `profiles`/red, el usuario igual puede ver login o dashboard, y el nombre del perfil se completa cuando esté disponible.
+## Resultado Esperado
+- Cada gasto tiene exactamente una categoría
+- Los gráficos muestran datos precisos sin duplicación
+- El total en los gráficos coincide con el total real de gastos
+- UX más clara y fácil de entender
