@@ -218,7 +218,7 @@ const ExpenseTable = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>{t('expenseTable.expense.name')}</TableHead>
-                      <TableHead>{t('expenseTable.expense.tags')}</TableHead>
+                      <TableHead>{t('expenseTable.expense.category')}</TableHead>
                       <TableHead className="text-right">{t('expenseTable.expense.amount')}</TableHead>
                       <TableHead className="text-right">{t('expenseTable.expense.amountUSD')}</TableHead>
                       <TableHead className="w-12"></TableHead>

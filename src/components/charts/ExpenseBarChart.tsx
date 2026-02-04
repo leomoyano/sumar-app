@@ -18,26 +18,21 @@ interface ExpenseBarChartProps {
 
 const ExpenseBarChart = ({ expenses }: ExpenseBarChartProps) => {
   const chartData = useMemo(() => {
-    const tagTotals: Record<string, number> = {};
+    const categoryTotals: Record<string, number> = {};
     
     expenses.forEach(expense => {
-      expense.tags.forEach(tag => {
-        tagTotals[tag] = (tagTotals[tag] || 0) + expense.amount;
-      });
-      
-      // Si no tiene tags, agregar a "Sin etiqueta"
-      if (expense.tags.length === 0) {
-        tagTotals['Sin etiqueta'] = (tagTotals['Sin etiqueta'] || 0) + expense.amount;
-      }
+      // Usar solo la primera categoría (o "Sin categoría" si no tiene)
+      const category = expense.tags.length > 0 ? expense.tags[0] : 'Sin categoría';
+      categoryTotals[category] = (categoryTotals[category] || 0) + expense.amount;
     });
 
-    return Object.entries(tagTotals)
+    return Object.entries(categoryTotals)
       .map(([tag, amount]) => ({
         tag,
         amount,
       }))
       .sort((a, b) => b.amount - a.amount)
-      .slice(0, 8); // Top 8 tags
+      .slice(0, 8); // Top 8 categorías
   }, [expenses]);
 
   const chartConfig: ChartConfig = {
@@ -56,7 +51,7 @@ const ExpenseBarChart = ({ expenses }: ExpenseBarChartProps) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <BarChart3 className="h-4 w-4" />
-          Gastos por Etiqueta
+          Gastos por Categoría
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -29,25 +29,21 @@ const COLORS = [
 
 const ExpensePieChart = ({ expenses }: ExpensePieChartProps) => {
   const chartData = useMemo(() => {
-    const tagTotals: Record<string, number> = {};
+    const categoryTotals: Record<string, number> = {};
     
     expenses.forEach(expense => {
-      expense.tags.forEach(tag => {
-        tagTotals[tag] = (tagTotals[tag] || 0) + expense.amount;
-      });
-      
-      if (expense.tags.length === 0) {
-        tagTotals['Sin etiqueta'] = (tagTotals['Sin etiqueta'] || 0) + expense.amount;
-      }
+      // Usar solo la primera categoría (o "Sin categoría" si no tiene)
+      const category = expense.tags.length > 0 ? expense.tags[0] : 'Sin categoría';
+      categoryTotals[category] = (categoryTotals[category] || 0) + expense.amount;
     });
 
-    const total = Object.values(tagTotals).reduce((sum, val) => sum + val, 0);
+    const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
 
-    return Object.entries(tagTotals)
+    return Object.entries(categoryTotals)
       .map(([tag, amount], index) => ({
         tag,
         amount,
-        percentage: ((amount / total) * 100).toFixed(1),
+        percentage: total > 0 ? ((amount / total) * 100).toFixed(1) : '0',
         fill: COLORS[index % COLORS.length],
       }))
       .sort((a, b) => b.amount - a.amount)

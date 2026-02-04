@@ -26,7 +26,8 @@ const TagFilter = ({ availableTags, selectedTags, onTagsChange }: TagFilterProps
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
-          <span>Filtrar por etiquetas</span>
+          <span>Filtrar por categoría</span>
+          
         </div>
         {selectedTags.length > 0 && (
           <Button
