@@ -31,8 +31,8 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
-// Tags predefinidos para gastos
-export const DEFAULT_TAGS = [
+// Categorías predefinidas para gastos
+export const DEFAULT_CATEGORIES = [
   'Comida',
   'Servicios',
   'Transporte',
@@ -44,7 +44,12 @@ export const DEFAULT_TAGS = [
   'Otros'
 ] as const;
 
-export type TagType = typeof DEFAULT_TAGS[number];
+export type CategoryType = typeof DEFAULT_CATEGORIES[number];
+
+// Helper para obtener la categoría principal de un gasto (legacy support)
+export const getPrimaryCategory = (tags: string[]): string => {
+  return tags.length > 0 ? tags[0] : 'Sin categoría';
+};
 
 // Tipo para la respuesta de la API de dólar
 export interface DollarRate {

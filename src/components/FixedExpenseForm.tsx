@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { X, Plus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface FixedExpenseFormProps {
@@ -30,9 +30,17 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
   
   const [name, setName] = useState(initialData?.name || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
-  const [selectedTags, setSelectedTags] = useState<string[]>(initialData?.tags || []);
-  const [newTag, setNewTag] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialData?.tags?.[0] || '');
+  const [newCategory, setNewCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+
+  // Reset form when initialData changes
+  useEffect(() => {
+    setName(initialData?.name || '');
+    setAmount(initialData?.amount?.toString() || '');
+    setSelectedCategory(initialData?.tags?.[0] || '');
+  }, [initialData]);
 
   const handleSubmit = async () => {
     if (!name.trim() || !amount) {
@@ -45,13 +53,13 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
       await onSubmit({
         name: name.trim(),
         amount: parseFloat(amount),
-        tags: selectedTags,
+        tags: selectedCategory ? [selectedCategory] : [],
         isActive: initialData?.isActive ?? true,
       });
       
       setName('');
       setAmount('');
-      setSelectedTags([]);
+      setSelectedCategory('');
       onOpenChange(false);
     } catch (error) {
       toast.error(t('common.error'));
@@ -60,23 +68,29 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
     }
   };
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
-  };
-
-  const handleAddNewTag = async () => {
-    if (!newTag.trim()) return;
+  const handleAddNewCategory = async () => {
+    if (!newCategory.trim()) return;
     
+    const categoryName = newCategory.trim();
+    const existingTag = availableTags.find(t => t.name.toLowerCase() === categoryName.toLowerCase());
+    
+    if (existingTag) {
+      setSelectedCategory(existingTag.name);
+      setNewCategory('');
+      toast.info(language === 'es' ? `Categoría "${existingTag.name}" seleccionada` : `Category "${existingTag.name}" selected`);
+      return;
+    }
+
+    setIsAddingCategory(true);
     try {
-      await addTag(newTag.trim());
-      setSelectedTags(prev => [...prev, newTag.trim()]);
-      setNewTag('');
+      await addTag(categoryName);
+      setSelectedCategory(categoryName);
+      setNewCategory('');
+      toast.success(language === 'es' ? `Categoría "${categoryName}" creada` : `Category "${categoryName}" created`);
     } catch (error) {
       toast.error(t('common.error'));
+    } finally {
+      setIsAddingCategory(false);
     }
   };
 
@@ -119,34 +133,40 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
           </div>
           
           <div className="space-y-2">
-            <Label>{t('expenseForm.tags')}</Label>
-            <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[60px]">
-              {availableTags.map(tag => (
-                <Badge
-                  key={tag.id}
-                  variant={selectedTags.includes(tag.name) ? 'default' : 'outline'}
-                  className="cursor-pointer"
-                  onClick={() => toggleTag(tag.name)}
-                >
-                  {tag.name}
-                  {selectedTags.includes(tag.name) && (
-                    <X className="h-3 w-3 ml-1" />
-                  )}
-                </Badge>
-              ))}
-            </div>
+            <Label>{language === 'es' ? 'Categoría' : 'Category'}</Label>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={language === 'es' ? 'Seleccionar categoría' : 'Select category'} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTags.map(tag => (
+                  <SelectItem key={tag.id} value={tag.name}>
+                    {tag.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
-          <div className="flex gap-2">
-            <Input
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder={t('expenseForm.newTag.placeholder')}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddNewTag()}
-            />
-            <Button type="button" variant="outline" onClick={handleAddNewTag}>
-              <Plus className="h-4 w-4" />
-            </Button>
+          <div className="space-y-2">
+            <Label>{language === 'es' ? 'Agregar nueva categoría' : 'Add new category'}</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder={language === 'es' ? 'Nueva categoría...' : 'New category...'}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNewCategory())}
+                disabled={isAddingCategory}
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleAddNewCategory}
+                disabled={isAddingCategory || !newCategory.trim()}
+              >
+                {isAddingCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
         </div>
         
