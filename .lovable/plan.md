@@ -1,93 +1,99 @@
 
-## Problema Identificado
 
-Actualmente, cuando un gasto tiene múltiples etiquetas (ej: "Comida" + "Entretenimiento"), el monto completo se suma a **cada** etiqueta en los gráficos. Esto causa:
+## Exportar Tabla Mensual a PDF
 
-1. **Duplicación visual**: Un gasto de $10,000 con 3 tags aparece como $30,000 en el total del gráfico
-2. **Distorsión de porcentajes**: El pie chart muestra porcentajes inflados
-3. **Confusión del usuario**: Parece que hay más gastos de los que realmente existen
+### Objetivo
+Agregar un botón en las tarjetas del dashboard y en la vista de tabla que permita generar y descargar un PDF con el resumen completo de gastos del mes. Este PDF será ideal para compartir con contadores o para imprimir.
 
 ---
 
-## Opciones de Solución
+### Contenido del PDF
 
-### Opción A: Cambiar a Categoría Única (Recomendado)
-Permitir solo **una categoría principal** por gasto. Es el modelo más simple y claro para el usuario.
-
-**Ventajas:**
-- Gráficos precisos y sin duplicación
-- UX más simple y clara
-- Modelo mental fácil de entender
-
-**Cambios necesarios:**
-- Modificar el formulario para seleccionar solo 1 categoría (dropdown o radio buttons)
-- Mantener las tags secundarias como opcionales/adicionales solo para filtrado
-- Los gráficos mostrarán datos 100% precisos
+El documento incluirá:
+1. **Encabezado**: Nombre del mes (ej: "Febrero 2026") y fecha de generación
+2. **Tabla de gastos**: Nombre, Categoría, Monto ARS, Monto USD
+3. **Totales**: Total en ARS y equivalente en USD
+4. **Cotización**: Tipo de cambio del dólar blue utilizado
 
 ---
 
-### Opción B: Dividir el Monto entre Tags
-Si un gasto tiene N tags, dividir el monto entre ellos (ej: $1000 con 2 tags = $500 por tag).
+### Ubicación de los botones
 
-**Ventajas:**
-- El total del gráfico coincide con el total real de gastos
-- Mantiene flexibilidad de múltiples tags
-
-**Desventajas:**
-- Puede ser confuso ("¿Por qué Comida muestra $500 si gasté $1000?")
-- Requiere explicar al usuario cómo funciona
+| Ubicación | Componente | Acción |
+|-----------|------------|--------|
+| Dashboard (card de cada mes) | `Dashboard.tsx` | Botón de descarga rápida en la tarjeta |
+| Vista de tabla | `ExpenseTable.tsx` | Botón "Exportar PDF" en el header |
 
 ---
 
-### Opción C: Categoría Principal + Tags Secundarios
-Separar en dos conceptos: una **Categoría** (obligatoria, única) y **Tags** opcionales para filtrar.
+### Diseño del PDF
 
-**Ventajas:**
-- Lo mejor de ambos mundos
-- Gráficos basados en categoría (sin duplicación)
-- Tags para organización y filtrado flexible
-
-**Desventajas:**
-- Requiere más cambios en la base de datos y UI
-
----
-
-## Plan de Implementación (Opción A - Categoría Única)
-
-### 1. Modificar ExpenseForm
-- Cambiar de selección múltiple de tags a selección única (dropdown/select)
-- Renombrar "Etiquetas" a "Categoría"
-- Mantener campo de tags personalizados para permitir crear nuevas categorías
-
-### 2. Actualizar los Gráficos
-- Simplificar la lógica: cada gasto tiene una sola categoría
-- Si `tags` está vacío o tiene múltiples (datos legacy), usar el primero o "Sin categoría"
-
-### 3. Actualizar tipos y base de datos
-- No requiere cambios en la estructura de DB (seguimos usando el array `tags`, solo usamos el primer elemento)
-- Actualizar tipos en TypeScript para reflejar el nuevo comportamiento
-
-### 4. Migración de datos existentes
-- Los gastos con múltiples tags usarán el primer tag como categoría principal
-- No se pierden datos
+```text
++------------------------------------------+
+|           SUMAR - Gastos Mensuales       |
+|           Febrero 2026                   |
+|           Generado: 04/02/2026           |
++------------------------------------------+
+|                                          |
+|  Nombre         Categoría    ARS    USD  |
+|  --------------------------------------- |
+|  Supermercado   Comida    $50,000  $41   |
+|  Netflix        Servicios  $8,000   $7   |
+|  Uber           Transporte $12,000  $10  |
+|  ...                                     |
+|  --------------------------------------- |
+|  TOTAL                   $70,000   $58   |
+|                                          |
+|  Cotización USD: AR$ 1,200               |
++------------------------------------------+
+```
 
 ---
 
-## Archivos a Modificar
+### Implementacion Tecnica
 
-| Archivo | Cambio |
+#### 1. Instalar dependencias
+- `jspdf`: Librería base para crear PDFs
+- `jspdf-autotable`: Plugin para generar tablas automáticamente
+
+#### 2. Crear utilidad de exportación
+Crear `src/lib/exportPdf.ts` con:
+- Función `exportTableToPdf(table, expenses, rate, language)`
+- Configuración de estilos (colores, fuentes, márgenes)
+- Formateo de moneda según idioma
+
+#### 3. Agregar botón en ExpenseTable.tsx
+- Botón "Exportar PDF" junto al botón de agregar gasto
+- Icono de descarga (FileDown de lucide-react)
+- Llamar a la función de exportación al hacer clic
+
+#### 4. Agregar botón en Dashboard.tsx
+- Botón de descarga rápida en cada tarjeta de mes
+- Se muestra al hacer hover (similar al botón de eliminar)
+- Permite exportar sin entrar a la tabla
+
+#### 5. Agregar traducciones
+- `'export.pdf'`: "Exportar PDF" / "Export PDF"
+- `'export.pdf.success'`: "PDF descargado" / "PDF downloaded"
+- `'export.pdf.generating'`: "Generando PDF..." / "Generating PDF..."
+
+---
+
+### Archivos a crear/modificar
+
+| Archivo | Acción |
 |---------|--------|
-| `src/components/ExpenseForm.tsx` | Cambiar a Select único para categoría |
-| `src/components/FixedExpenseForm.tsx` | Mismo cambio para gastos fijos |
-| `src/components/charts/ExpenseBarChart.tsx` | Simplificar lógica (usar primer tag) |
-| `src/components/charts/ExpensePieChart.tsx` | Simplificar lógica (usar primer tag) |
-| `src/pages/ExpenseTable.tsx` | Actualizar texto "Etiquetas" → "Categoría" |
-| `src/types/index.ts` | Renombrar DEFAULT_TAGS a DEFAULT_CATEGORIES |
+| `package.json` | Agregar jspdf y jspdf-autotable |
+| `src/lib/exportPdf.ts` | Crear función de exportación |
+| `src/pages/ExpenseTable.tsx` | Agregar botón de exportar |
+| `src/pages/Dashboard.tsx` | Agregar botón de descarga rápida |
+| `src/contexts/LanguageContext.tsx` | Agregar traducciones |
 
 ---
 
-## Resultado Esperado
-- Cada gasto tiene exactamente una categoría
-- Los gráficos muestran datos precisos sin duplicación
-- El total en los gráficos coincide con el total real de gastos
-- UX más clara y fácil de entender
+### Resultado esperado
+- Con un solo clic, el usuario descarga un PDF profesional con todos los gastos del mes
+- El PDF tiene formato limpio y es apto para presentar a un contador
+- El nombre del archivo incluye el mes (ej: `Febrero_2026_gastos.pdf`)
+- Funciona tanto desde el dashboard como desde la vista de tabla
+
