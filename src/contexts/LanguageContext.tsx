@@ -104,6 +104,11 @@ const translations: Record<Language, Record<string, string>> = {
     'fixedExpenses.includeInTable': 'Incluir gastos fijos',
     'fixedExpenses.selectedTotal': 'Total seleccionado',
     
+     // Export PDF
+     'export.pdf': 'Exportar PDF',
+     'export.pdf.success': 'PDF descargado correctamente',
+     'export.pdf.noExpenses': 'No hay gastos para exportar',
+ 
     // Common
     'common.loading': 'Cargando...',
     'common.error': 'Error',
@@ -207,6 +212,11 @@ const translations: Record<Language, Record<string, string>> = {
     'fixedExpenses.includeInTable': 'Include fixed expenses',
     'fixedExpenses.selectedTotal': 'Selected total',
     
+     // Export PDF
+     'export.pdf': 'Export PDF',
+     'export.pdf.success': 'PDF downloaded successfully',
+     'export.pdf.noExpenses': 'No expenses to export',
+ 
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Error',

@@ -16,10 +16,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat } from 'lucide-react';
+ import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat, FileDown } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
+ import { exportTableToPdf } from '@/lib/exportPdf';
 
 const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -122,6 +123,22 @@ const Dashboard = () => {
     return expenses.reduce((sum, exp) => sum + exp.amount, 0);
   };
 
+   const handleExportPdf = (tableToExport: typeof tables[0]) => {
+     if (tableToExport.expenses.length === 0) {
+       toast.error(t('export.pdf.noExpenses'));
+       return;
+     }
+     
+     exportTableToPdf({
+       tableName: tableToExport.name,
+       expenses: tableToExport.expenses,
+       rate,
+       language
+     });
+     
+     toast.success(t('export.pdf.success'));
+   };
+ 
   if (isLoading) {
     return (
       <AppLayout>
@@ -348,7 +365,17 @@ const Dashboard = () => {
                           {table.expenses.length} {table.expenses.length !== 1 ? t('dashboard.expenses') : t('dashboard.expense')}
                         </CardDescription>
                       </div>
-                      <AlertDialog>
+                       <div className="flex items-center gap-1">
+                         <Button
+                           variant="ghost"
+                           size="icon"
+                           className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                           onClick={() => handleExportPdf(table)}
+                           title={t('export.pdf')}
+                         >
+                           <FileDown className="h-4 w-4" />
+                         </Button>
+                         <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="ghost"
@@ -376,6 +403,7 @@ const Dashboard = () => {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
+                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>

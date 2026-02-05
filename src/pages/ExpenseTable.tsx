@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { Plus, ArrowLeft, Trash2, Tag, Calculator } from 'lucide-react';
+ import { Plus, ArrowLeft, Trash2, Tag, Calculator, FileDown } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import ExpenseForm from '@/components/ExpenseForm';
 import TagFilter from '@/components/TagFilter';
@@ -20,12 +20,14 @@ import ExpenseBarChart from '@/components/charts/ExpenseBarChart';
 import ExpensePieChart from '@/components/charts/ExpensePieChart';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
+ import { exportTableToPdf } from '@/lib/exportPdf';
+ import { useLanguage as useLang } from '@/contexts/LanguageContext';
 
 const ExpenseTable = () => {
   const { tableId } = useParams<{ tableId: string }>();
   const navigate = useNavigate();
   const { user } = useAuthContext();
-  const { t } = useLanguage();
+   const { t, language } = useLanguage();
   const { tables, addExpense, deleteExpense, isLoading } = useTables(user?.id);
   const { rate } = useDollarRate();
   
@@ -83,6 +85,22 @@ const ExpenseTable = () => {
     }
   };
 
+   const handleExportPdf = () => {
+     if (!table || table.expenses.length === 0) {
+       toast.error(t('export.pdf.noExpenses'));
+       return;
+     }
+     
+     exportTableToPdf({
+       tableName: table.name,
+       expenses: table.expenses,
+       rate,
+       language
+     });
+     
+     toast.success(t('export.pdf.success'));
+   };
+ 
   if (isLoading) {
     return (
       <AppLayout>
@@ -128,6 +146,14 @@ const ExpenseTable = () => {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <LanguageSwitch />
+             <Button 
+               variant="outline" 
+               className="gap-2"
+               onClick={handleExportPdf}
+             >
+               <FileDown className="h-4 w-4" />
+               {t('export.pdf')}
+             </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
