@@ -57,52 +57,67 @@
      ];
    });
  
-   // Add table
-   autoTable(doc, {
-     startY: 45,
-     head: [[
-       isSpanish ? 'Nombre' : 'Name',
-       isSpanish ? 'Categoría' : 'Category',
-       isSpanish ? 'Monto (ARS)' : 'Amount (ARS)',
-       isSpanish ? 'Monto (USD)' : 'Amount (USD)'
-     ]],
-     body: tableData,
-     foot: [[
-       'TOTAL',
-       '',
-       formatARS(totalARS),
-       formatUSD(totalUSD)
-     ]],
-     theme: 'striped',
-     headStyles: {
-       fillColor: [59, 130, 246],
-       textColor: 255,
-       fontStyle: 'bold'
-     },
-     footStyles: {
-       fillColor: [59, 130, 246],
-       textColor: 255,
-       fontStyle: 'bold'
-     },
-     styles: {
-       fontSize: 10,
-       cellPadding: 4
-     },
-     columnStyles: {
-       2: { halign: 'right' },
-       3: { halign: 'right' }
-     }
-   });
- 
-   // Add exchange rate info at the bottom
-   const finalY = (doc as any).lastAutoTable.finalY + 10;
-   doc.setFontSize(9);
-   doc.setTextColor(100);
-   doc.text(
-     `${isSpanish ? 'Cotización USD (Dólar Blue)' : 'USD Exchange Rate (Blue Dollar)'}: ${formatARS(rate)}`,
-     14,
-     finalY
-   );
+  // Add table
+  autoTable(doc, {
+    startY: 45,
+    head: [[
+      isSpanish ? 'Nombre' : 'Name',
+      isSpanish ? 'Categoría' : 'Category',
+      isSpanish ? 'Monto (ARS)' : 'Amount (ARS)',
+      isSpanish ? 'Monto (USD)' : 'Amount (USD)'
+    ]],
+    body: tableData,
+    foot: [[
+      'TOTAL',
+      '',
+      formatARS(totalARS),
+      formatUSD(totalUSD)
+    ]],
+    theme: 'striped',
+    headStyles: {
+      fillColor: [59, 130, 246],
+      textColor: 255,
+      fontStyle: 'bold',
+      halign: 'left'
+    },
+    footStyles: {
+      fillColor: [59, 130, 246],
+      textColor: 255,
+      fontStyle: 'bold'
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 4
+    },
+    columnStyles: {
+      0: { cellWidth: 60 },
+      1: { cellWidth: 40 },
+      2: { halign: 'right', cellWidth: 40 },
+      3: { halign: 'right', cellWidth: 40 }
+    }
+  });
+
+  // Add exchange rate note at the bottom
+  const finalY = (doc as any).lastAutoTable.finalY + 15;
+  
+  // Draw a subtle box for the note
+  doc.setDrawColor(200);
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(14, finalY - 5, 182, 18, 2, 2, 'FD');
+  
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.text(
+    isSpanish ? 'Nota:' : 'Note:',
+    18,
+    finalY + 3
+  );
+  doc.setTextColor(60);
+  doc.text(
+    `${isSpanish ? 'Los valores en USD fueron calculados con la cotización del Dólar Blue del día' : 'USD values were calculated using the Blue Dollar exchange rate'}: ${formatARS(rate)}`,
+    18,
+    finalY + 9
+  );
  
    // Save the PDF
    const fileName = tableName.replace(/\s+/g, '_') + '_' + (isSpanish ? 'gastos' : 'expenses') + '.pdf';
