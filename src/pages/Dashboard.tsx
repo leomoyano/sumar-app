@@ -16,11 +16,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
- import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat, FileDown } from 'lucide-react';
+import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat, FileDown, ArrowRight } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
- import { exportTableToPdf } from '@/lib/exportPdf';
+import { exportTableToPdf } from '@/lib/exportPdf';
 
 const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -50,12 +50,18 @@ const Dashboard = () => {
     table.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Calculate total monthly expenses across all tables
+  const totalMonthlyExpenses = useMemo(() => {
+    return tables.reduce((sum, table) => {
+      return sum + table.expenses.reduce((expSum, exp) => expSum + exp.amount, 0);
+    }, 0);
+  }, [tables]);
+
   const generateTableName = () => {
     const monthName = months[parseInt(selectedMonth)];
     return `${monthName} ${selectedYear}`;
   };
 
-  // Initialize selected fixed expenses when dialog opens
   const handleOpenDialog = (open: boolean) => {
     if (open) {
       const activeIds = getActiveExpenses().map(exp => exp.id);
@@ -79,7 +85,6 @@ const Dashboard = () => {
   const handleCreateTable = async () => {
     const tableName = generateTableName();
     
-    // Check if table already exists
     const exists = tables.some(t => t.name.toLowerCase() === tableName.toLowerCase());
     if (exists) {
       toast.error(language === 'es' 
@@ -91,7 +96,6 @@ const Dashboard = () => {
     try {
       const newTable = await createTable(tableName);
       
-      // Add selected fixed expenses to the new table
       if (newTable && selectedFixedExpenses.length > 0) {
         const expensesToAdd = fixedExpenses.filter(exp => selectedFixedExpenses.includes(exp.id));
         for (const fixedExp of expensesToAdd) {
@@ -123,27 +127,27 @@ const Dashboard = () => {
     return expenses.reduce((sum, exp) => sum + exp.amount, 0);
   };
 
-   const handleExportPdf = (tableToExport: typeof tables[0]) => {
-     if (tableToExport.expenses.length === 0) {
-       toast.error(t('export.pdf.noExpenses'));
-       return;
-     }
-     
-     exportTableToPdf({
-       tableName: tableToExport.name,
-       expenses: tableToExport.expenses,
-       rate,
-       language
-     });
-     
-     toast.success(t('export.pdf.success'));
-   };
- 
+  const handleExportPdf = (tableToExport: typeof tables[0]) => {
+    if (tableToExport.expenses.length === 0) {
+      toast.error(t('export.pdf.noExpenses'));
+      return;
+    }
+    
+    exportTableToPdf({
+      tableName: tableToExport.name,
+      expenses: tableToExport.expenses,
+      rate,
+      language
+    });
+    
+    toast.success(t('export.pdf.success'));
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
         </div>
       </AppLayout>
     );
@@ -151,61 +155,84 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-foreground tracking-tight">
               {t('dashboard.welcome')}, {user?.name}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t('login.subtitle')}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
             <LanguageSwitch />
-            <Button variant="outline" onClick={logout} className="gap-2">
+            <Button variant="ghost" onClick={logout} size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
               <LogOut className="h-4 w-4" />
-              {t('dashboard.logout')}
+              <span className="hidden sm:inline">{t('dashboard.logout')}</span>
             </Button>
           </div>
-        </div>
+        </header>
 
-        {/* Dollar Rate Card */}
-        <Card className="bg-accent border-accent-foreground/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
+        {/* Primary Metric - Total Balance Card */}
+        <Card className="overflow-hidden border-0 shadow-md bg-gradient-to-br from-primary/5 via-card to-card">
+          <CardContent className="p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              {/* Main Metric */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                  {language === 'es' ? 'Gastos Totales' : 'Total Expenses'}
+                </p>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl lg:text-5xl font-bold text-foreground tabular-nums tracking-tight">
+                    {formatARS(totalMonthlyExpenses)}
+                  </span>
+                  <span className="text-lg text-muted-foreground tabular-nums">
+                    ≈ USD {(totalMonthlyExpenses / rate).toFixed(2)}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {tables.length} {tables.length === 1 
+                    ? (language === 'es' ? 'tabla activa' : 'active table') 
+                    : (language === 'es' ? 'tablas activas' : 'active tables')}
+                </p>
+              </div>
+
+              {/* Dollar Rate - Secondary */}
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-background/60 border">
+                <div className="p-3 rounded-lg bg-primary/10">
                   <DollarSign className="h-5 w-5 text-primary" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('dashboard.dollarRate')}</p>
-                  <p className="font-semibold text-foreground">
+                <div className="space-y-0.5">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {t('dashboard.dollarRate')}
+                  </p>
+                  <p className="text-xl font-semibold text-foreground tabular-nums">
                     {formatARS(rate)}
                   </p>
+                  {dollarInfo && (
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      {t('dashboard.dollarRate.buy')}: {formatARS(dollarInfo.compra)} · {t('dashboard.dollarRate.sell')}: {formatARS(dollarInfo.venta)}
+                    </p>
+                  )}
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={refetchRate}
+                  disabled={isLoadingRate}
+                  className="h-8 w-8 ml-auto text-muted-foreground hover:text-foreground"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={refetchRate}
-                disabled={isLoadingRate}
-                className="h-8 w-8"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
-              </Button>
             </div>
-            {dollarInfo && (
-              <p className="text-xs text-muted-foreground mt-2">
-                {t('dashboard.dollarRate.buy')}: {formatARS(dollarInfo.compra)} | {t('dashboard.dollarRate.sell')}: {formatARS(dollarInfo.venta)}
-              </p>
-            )}
           </CardContent>
         </Card>
 
-        {/* Search and Create */}
+        {/* Actions Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -277,7 +304,6 @@ const Dashboard = () => {
                   {language === 'es' ? 'Se creará:' : 'Will create:'} <strong>{generateTableName()}</strong>
                 </p>
                 
-                {/* Fixed Expenses Section */}
                 {fixedExpenses.length > 0 && (
                   <>
                     <Separator />
@@ -287,9 +313,9 @@ const Dashboard = () => {
                         {fixedExpenses.map(expense => (
                           <div 
                             key={expense.id} 
-                            className="flex items-center justify-between p-2 rounded-md border"
+                            className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
                           >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <Checkbox
                                 id={expense.id}
                                 checked={selectedFixedExpenses.includes(expense.id)}
@@ -302,7 +328,7 @@ const Dashboard = () => {
                                 {expense.name}
                               </label>
                             </div>
-                            <span className="text-sm font-medium text-muted-foreground">
+                            <span className="text-sm font-medium text-muted-foreground tabular-nums">
                               {formatARS(expense.amount)}
                             </span>
                           </div>
@@ -311,7 +337,7 @@ const Dashboard = () => {
                       {selectedFixedExpenses.length > 0 && (
                         <div className="flex justify-between text-sm font-medium pt-2 border-t">
                           <span>{t('fixedExpenses.selectedTotal')}:</span>
-                          <span className="text-primary">{formatARS(selectedFixedTotal)}</span>
+                          <span className="text-primary tabular-nums">{formatARS(selectedFixedTotal)}</span>
                         </div>
                       )}
                     </div>
@@ -332,13 +358,15 @@ const Dashboard = () => {
 
         {/* Tables Grid */}
         {filteredTables.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+          <Card className="border-dashed border-2">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-4 rounded-full bg-muted mb-4">
+                <Calendar className="h-8 w-8 text-muted-foreground" />
+              </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 {t('dashboard.noTables')}
               </h3>
-              <p className="text-muted-foreground text-center mb-4">
+              <p className="text-muted-foreground text-center mb-6 max-w-sm">
                 {t('dashboard.newTable.description')}
               </p>
               {!searchQuery && (
@@ -350,79 +378,87 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredTables.map((table) => {
               const total = calculateTableTotal(table.expenses);
               const totalUSD = total / rate;
               
               return (
-                <Card key={table.id} className="group hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
+                <Card 
+                  key={table.id} 
+                  className="group hover:shadow-lg transition-all duration-200"
+                >
+                  <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{table.name}</CardTitle>
-                        <CardDescription>
+                      <div className="space-y-1">
+                        <CardTitle className="text-base font-semibold">{table.name}</CardTitle>
+                        <CardDescription className="text-xs">
                           {table.expenses.length} {table.expenses.length !== 1 ? t('dashboard.expenses') : t('dashboard.expense')}
                         </CardDescription>
                       </div>
-                       <div className="flex items-center gap-1">
-                         <Button
-                           variant="ghost"
-                           size="icon"
-                           className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                           onClick={() => handleExportPdf(table)}
-                           title={t('export.pdf')}
-                         >
-                           <FileDown className="h-4 w-4" />
-                         </Button>
-                         <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t('dashboard.deleteTable.title')}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t('dashboard.deleteTable.description')}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>{t('dashboard.deleteTable.cancel')}</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteTable(table.id, table.name)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleExportPdf(table)}
+                          title={t('export.pdf')}
+                        >
+                          <FileDown className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             >
-                              {t('dashboard.deleteTable.confirm')}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                       </div>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('dashboard.deleteTable.title')}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t('dashboard.deleteTable.description')}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('dashboard.deleteTable.cancel')}</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteTable(table.id, table.name)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                {t('dashboard.deleteTable.confirm')}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
+                  <CardContent className="space-y-4">
+                    <div className="space-y-1">
+                      <div className="flex items-baseline gap-2">
                         <TrendingUp className="h-4 w-4 text-primary" />
-                        <span className="text-xl font-bold text-foreground">
+                        <span className="text-2xl font-bold text-foreground tabular-nums">
                           {formatARS(total)}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground tabular-nums pl-6">
                         ≈ USD {totalUSD.toFixed(2)}
                       </p>
-                      <Link to={`/table/${table.id}`}>
-                        <Button variant="outline" className="w-full mt-2">
-                          {t('expenseTable.back').replace('Volver', 'Ver').replace('Back', 'View')}
-                        </Button>
-                      </Link>
                     </div>
+                    
+                    <Link to={`/table/${table.id}`}>
+                      <Button 
+                        variant="secondary" 
+                        className="w-full justify-between group/btn"
+                      >
+                        {t('dashboard.viewDetails')}
+                        <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover/btn:translate-x-0.5" />
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               );
