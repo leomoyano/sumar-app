@@ -1,151 +1,161 @@
-@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* 
+  SUMAR Design System
+  Modern fintech aesthetic: clean, calm, premium
+  All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    /* Core Colors */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 15%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
 
-    --primary: 161 93% 30%;
-    --primary-foreground: 151 80% 95%;
+    /* Primary - Refined Emerald */
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary - Soft Neutral */
+    --secondary: 220 10% 94%;
+    --secondary-foreground: 220 15% 25%;
 
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    /* Muted - Subtle Grays */
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 166 76% 96%;
-    --accent-foreground: 173 80% 40%;
+    /* Accent - Mint highlight */
+    --accent: 160 50% 96%;
+    --accent-foreground: 160 84% 32%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 161 93% 30%;
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 160 84% 39%;
 
-    --radius: 0.75rem;
+    /* Radius - Softer corners */
+    --radius: 0.875rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 15%;
+    --sidebar-primary: 160 84% 39%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 160 50% 96%;
+    --sidebar-accent-foreground: 160 84% 32%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 160 84% 39%;
+    --sidebar: 0 0% 100%;
 
-    --sidebar-foreground: 0 0% 9%;
-
-    --sidebar-primary: 161 93% 30%;
-
-    --sidebar-primary-foreground: 151 80% 95%;
-
-    --sidebar-accent: 0 0% 32%;
-
-    --sidebar-accent-foreground: 0 0% 98%;
-
-    --sidebar-border: 0 0% 83%;
-
-    --sidebar-ring: 161 93% 30%;
-
-    --chart-1: 158 64% 51%;
-
-    --chart-2: 141 69% 58%;
-
+    /* Charts */
+    --chart-1: 160 84% 39%;
+    --chart-2: 142 71% 45%;
     --chart-3: 172 66% 50%;
-
     --chart-4: 82 77% 55%;
+    --chart-5: 220 10% 50%;
 
-    --chart-5: 0 0% 45%;
+    /* Typography */
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-    --sidebar: 0 0% 98%;
+    /* Shadows - Soft, premium elevation */
+    --shadow-2xs: 0 1px 2px 0 hsl(220 15% 15% / 0.03);
+    --shadow-xs: 0 1px 3px 0 hsl(220 15% 15% / 0.04);
+    --shadow-sm: 0 2px 6px -1px hsl(220 15% 15% / 0.05), 0 1px 3px -1px hsl(220 15% 15% / 0.03);
+    --shadow: 0 4px 12px -2px hsl(220 15% 15% / 0.06), 0 2px 4px -2px hsl(220 15% 15% / 0.03);
+    --shadow-md: 0 6px 16px -4px hsl(220 15% 15% / 0.08), 0 2px 6px -2px hsl(220 15% 15% / 0.04);
+    --shadow-lg: 0 12px 32px -8px hsl(220 15% 15% / 0.1), 0 4px 12px -4px hsl(220 15% 15% / 0.05);
+    --shadow-xl: 0 20px 48px -12px hsl(220 15% 15% / 0.12), 0 8px 20px -8px hsl(220 15% 15% / 0.06);
+    --shadow-2xl: 0 32px 64px -16px hsl(220 15% 15% / 0.16);
 
-    --font-sans: 'Work Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-
-    --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-
-    --font-mono: 'Inconsolata', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    /* Glass effect for modals/floating */
+    --glass-bg: hsl(0 0% 100% / 0.85);
+    --glass-border: hsl(220 13% 91% / 0.6);
 
     --tracking-normal: 0em;
-
     --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 220 10% 16%;
-    --foreground: 0 0% 98%;
+    --background: 222 20% 10%;
+    --foreground: 220 15% 95%;
 
-    --card: 220 10% 20%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 18% 13%;
+    --card-foreground: 220 15% 95%;
 
-    --popover: 220 10% 28%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 18% 15%;
+    --popover-foreground: 220 15% 95%;
 
-    --primary: 158 64% 51%;
-    --primary-foreground: 165 91% 9%;
+    /* Primary - Bright Emerald */
+    --primary: 160 72% 52%;
+    --primary-foreground: 222 20% 8%;
 
-    --secondary: 220 8% 40%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary */
+    --secondary: 222 15% 22%;
+    --secondary-foreground: 220 15% 90%;
 
-    --muted: 220 8% 40%;
-    --muted-foreground: 220 8% 75%;
+    /* Muted */
+    --muted: 222 15% 18%;
+    --muted-foreground: 220 10% 58%;
 
-    --accent: 170 40% 22%;
-    --accent-foreground: 172 66% 50%;
+    /* Accent */
+    --accent: 162 40% 18%;
+    --accent-foreground: 160 72% 60%;
 
+    /* Destructive */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 10% 30%;
-    --input: 220 10% 30%;
-    --ring: 158 64% 51%;
-    --sidebar-background: 220 10% 18%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 158 64% 51%;
-    --sidebar-primary-foreground: 165 91% 9%;
-    --sidebar-accent: 172 66% 50%;
-    --sidebar-accent-foreground: 170 40% 22%;
-    --sidebar-border: 220 10% 30%;
-    --sidebar-ring: 158 64% 51%;
-    --chart-1: 156 71% 66%;
-    --chart-2: 141 76% 73%;
-    --chart-3: 170 76% 64%;
-    --chart-4: 81 84% 67%;
-    --chart-5: 220 8% 50%;
-    --sidebar: 220 10% 20%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    /* Borders */
+    --border: 222 15% 22%;
+    --input: 222 15% 22%;
+    --ring: 160 72% 52%;
+
+    /* Sidebar */
+    --sidebar-background: 222 18% 11%;
+    --sidebar-foreground: 220 15% 95%;
+    --sidebar-primary: 160 72% 52%;
+    --sidebar-primary-foreground: 222 20% 8%;
+    --sidebar-accent: 162 40% 18%;
+    --sidebar-accent-foreground: 160 72% 60%;
+    --sidebar-border: 222 15% 22%;
+    --sidebar-ring: 160 72% 52%;
+    --sidebar: 222 18% 12%;
+
+    /* Charts */
+    --chart-1: 160 72% 52%;
+    --chart-2: 142 76% 60%;
+    --chart-3: 172 76% 55%;
+    --chart-4: 82 84% 62%;
+    --chart-5: 220 10% 55%;
+
+    /* Shadows - Softer in dark mode */
+    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
+    --shadow-xs: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
+    --shadow-sm: 0 2px 6px -1px hsl(0 0% 0% / 0.25), 0 1px 3px -1px hsl(0 0% 0% / 0.15);
+    --shadow: 0 4px 12px -2px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.15);
+    --shadow-md: 0 6px 16px -4px hsl(0 0% 0% / 0.35), 0 2px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 12px 32px -8px hsl(0 0% 0% / 0.4), 0 4px 12px -4px hsl(0 0% 0% / 0.25);
+    --shadow-xl: 0 20px 48px -12px hsl(0 0% 0% / 0.5), 0 8px 20px -8px hsl(0 0% 0% / 0.3);
+    --shadow-2xl: 0 32px 64px -16px hsl(0 0% 0% / 0.6);
+
+    /* Glass effect */
+    --glass-bg: hsl(222 18% 13% / 0.9);
+    --glass-border: hsl(222 15% 25% / 0.5);
   }
 }
 
@@ -155,6 +165,25 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Tabular numbers for financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Glass effect utility */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border-color: var(--glass-border);
+  }
+
+  /* Smooth focus ring */
+  .focus-ring {
+    @apply outline-none ring-2 ring-ring/20 ring-offset-2 ring-offset-background;
   }
 }
