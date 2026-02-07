@@ -110,6 +110,21 @@ const translations: Record<Language, Record<string, string>> = {
      'export.pdf.success': 'PDF descargado correctamente',
      'export.pdf.noExpenses': 'No hay gastos para exportar',
  
+    // Budgets
+    'budget.title': 'Presupuestos',
+    'budget.add': 'Agregar Presupuesto',
+    'budget.edit': 'Editar Límite',
+    'budget.category': 'Categoría',
+    'budget.limit': 'Límite Mensual',
+    'budget.spent': 'Gastado',
+    'budget.remaining': 'Restante',
+    'budget.exceeded': 'Excedido',
+    'budget.warning': 'Cerca del límite',
+    'budget.safe': 'Dentro del presupuesto',
+    'budget.empty': 'No tienes presupuestos configurados',
+    'budget.progress': 'Progreso del Presupuesto',
+    'budget.total': 'Presupuesto Total',
+
     // Common
     'common.loading': 'Cargando...',
     'common.error': 'Error',
@@ -219,6 +234,21 @@ const translations: Record<Language, Record<string, string>> = {
      'export.pdf.success': 'PDF downloaded successfully',
      'export.pdf.noExpenses': 'No expenses to export',
  
+    // Budgets
+    'budget.title': 'Budgets',
+    'budget.add': 'Add Budget',
+    'budget.edit': 'Edit Limit',
+    'budget.category': 'Category',
+    'budget.limit': 'Monthly Limit',
+    'budget.spent': 'Spent',
+    'budget.remaining': 'Remaining',
+    'budget.exceeded': 'Exceeded',
+    'budget.warning': 'Near limit',
+    'budget.safe': 'Within budget',
+    'budget.empty': "You don't have any budgets configured",
+    'budget.progress': 'Budget Progress',
+    'budget.total': 'Total Budget',
+
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Error',

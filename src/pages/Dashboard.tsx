@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat, FileDown, ArrowRight } from 'lucide-react';
+import { Plus, Search, Trash2, Calendar, DollarSign, RefreshCw, LogOut, TrendingUp, Repeat, FileDown, ArrowRight, Target } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LanguageSwitch from '@/components/LanguageSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -248,6 +248,13 @@ const Dashboard = () => {
             <Button variant="outline" className="gap-2 w-full sm:w-auto">
               <Repeat className="h-4 w-4" />
               {t('fixedExpenses.title')}
+            </Button>
+          </Link>
+
+          <Link to="/budgets">
+            <Button variant="outline" className="gap-2 w-full sm:w-auto">
+              <Target className="h-4 w-4" />
+              {t('budget.title')}
             </Button>
           </Link>
           
