@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ExpenseTable from "./pages/ExpenseTable";
 import FixedExpenses from "./pages/FixedExpenses";
+import Budgets from "./pages/Budgets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -84,6 +85,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <FixedExpenses />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/budgets" 
+      element={
+        <ProtectedRoute>
+          <Budgets />
         </ProtectedRoute>
       } 
     />
