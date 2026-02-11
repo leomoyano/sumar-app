@@ -64,6 +64,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import ThemeToggle from "@/components/ThemeToggle";
 import MonthStatus from "@/components/dashboard/MonthStatus";
+import MagicBar from "@/components/dashboard/MagicBar";
 import { exportTableToPdf } from "@/lib/exportPdf";
 
 const MONTHS_ES = [
@@ -231,6 +232,38 @@ const Dashboard = () => {
     toast.success(t("export.pdf.success"));
   };
 
+  const handleMagicExpense = async (parsed: {
+    name: string;
+    amount: number;
+    tags: string[];
+  }) => {
+    // Buscar la tabla más reciente (la primera en el array ya que están ordenadas)
+    if (tables.length === 0) {
+      toast.error(
+        language === "es"
+          ? "Primero debés crear una tabla (ej: Febrero 2026)"
+          : "You must create a table first (ex: February 2026)",
+      );
+      return;
+    }
+
+    const targetTable = tables[0]; // La más reciente
+    try {
+      await addExpense(targetTable.id, {
+        name: parsed.name,
+        amount: parsed.amount,
+        tags: parsed.tags,
+      });
+      toast.success(
+        language === "es"
+          ? `Agregado a "${targetTable.name}"`
+          : `Added to "${targetTable.name}"`,
+      );
+    } catch (error) {
+      toast.error(t("common.error"));
+    }
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -243,16 +276,25 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
+      <div className="space-y-8 pt-4">
         {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-              {t("dashboard.welcome")}, {user?.name}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {t("login.subtitle")}
-            </p>
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-white shadow-sm border border-primary/10 flex items-center justify-center p-2.5">
+              <img
+                src="/favicon.svg"
+                alt="Sumar Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <div className="space-y-0.5">
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
+                {t("dashboard.welcome")}, {user?.name}
+              </h1>
+              <p className="text-muted-foreground text-sm font-medium">
+                {t("login.subtitle")}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-4 mr-4 px-4 py-1.5 rounded-full bg-muted/50 border text-xs">
@@ -290,6 +332,9 @@ const Dashboard = () => {
 
         {/* Main Status Hero */}
         <MonthStatus userId={user?.id} />
+
+        {/* Barra Inteligente (AI) */}
+        <MagicBar onExpenseParsed={handleMagicExpense} isLoading={isLoading} />
 
         {/* Mobile Dollar Rate as small card */}
         <div className="md:hidden">

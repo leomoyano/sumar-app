@@ -4,9 +4,9 @@
 
 ## ✨ Características Principal
 
-- **Presupuesto Mensual Inteligente**: Establece metas de gasto por mes y visualiza tu progreso en tiempo real.
+- **Barra Inteligente (IA)**: Carga gastos usando lenguaje natural (ej: "Ayer gasté 45k en una cena") gracias a Gemini 1.5 Flash.
+- **Categorización Automática**: La IA identifica etiquetas y categorías por vos.
 - **Doble Moneda (ARS/USD)**: Conversión automática basada en el Dólar Blue para entender el valor real de tus gastos.
-- **Categorización Flexible**: Organiza tus gastos por categorías configurables.
 - **Gastos Fijos**: Automatiza la carga de tus gastos fijos (alquiler, servicios, suscripciones) en cada nueva tabla mensual.
 - **Análisis Visual**: Gráficos dinámicos para entender la distribución y evolución de tus finanzas.
 - **Exportación a PDF**: Genera reportes detallados de tus tablas de gastos con un clic.
@@ -21,6 +21,7 @@ Este proyecto está construido con un stack moderno y profesional:
 - **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
 - **Componentes UI**: [Shadcn/UI](https://ui.shadcn.com/)
 - **Iconografía**: [Lucide React](https://lucide.dev/)
+- **Inteligencia Artificial**: [Gemini 1.5 Flash](https://aistudio.google.com/)
 - **Base de Datos & Auth**: [Supabase](https://supabase.com/)
 - **Estado**: [Zustand](https://docs.pmnd.rs/zustand/) & [TanStack Query](https://tanstack.com/query/latest)
 
