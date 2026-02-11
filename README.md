@@ -4,7 +4,7 @@
 
 ## ✨ Características Principal
 
-- **Barra Inteligente (IA)**: Carga gastos usando lenguaje natural (ej: "Ayer gasté 45k en una cena") gracias a Gemini 1.5 Flash.
+- **Barra Inteligente (IA)**: Carga gastos usando lenguaje natural (ej: "Ayer gasté 45k en una cena") gracias a Groq (Llama 3.3).
 - **Categorización Automática**: La IA identifica etiquetas y categorías por vos.
 - **Doble Moneda (ARS/USD)**: Conversión automática basada en el Dólar Blue para entender el valor real de tus gastos.
 - **Gastos Fijos**: Automatiza la carga de tus gastos fijos (alquiler, servicios, suscripciones) en cada nueva tabla mensual.
@@ -21,7 +21,7 @@ Este proyecto está construido con un stack moderno y profesional:
 - **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
 - **Componentes UI**: [Shadcn/UI](https://ui.shadcn.com/)
 - **Iconografía**: [Lucide React](https://lucide.dev/)
-- **Inteligencia Artificial**: [Gemini 1.5 Flash](https://aistudio.google.com/)
+- **Inteligencia Artificial**: [Groq](https://groq.com/) (Llama 3.3)
 - **Base de Datos & Auth**: [Supabase](https://supabase.com/)
 - **Estado**: [Zustand](https://docs.pmnd.rs/zustand/) & [TanStack Query](https://tanstack.com/query/latest)
 

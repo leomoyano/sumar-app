@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sparkles, Loader2, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { parseExpenseWithAI } from "@/services/gemini";
+import { parseExpenseWithAI } from "@/services/ai";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
