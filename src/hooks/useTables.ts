@@ -15,6 +15,7 @@ export interface MonthlyTable {
   id: string;
   name: string;
   userId: string;
+  budget: number;
   expenses: Expense[];
   createdAt: string;
   updatedAt: string;
@@ -61,6 +62,7 @@ export const useTables = (userId: string | undefined) => {
         id: table.id,
         name: table.name,
         userId: table.user_id,
+        budget: Number((table as any).budget || 0), // Nuevo campo
         createdAt: table.created_at,
         updatedAt: table.updated_at,
         expenses: expensesData
@@ -106,6 +108,7 @@ export const useTables = (userId: string | undefined) => {
       id: data.id,
       name: data.name,
       userId: data.user_id,
+      budget: 0,
       expenses: [],
       createdAt: data.created_at,
       updatedAt: data.updated_at,
@@ -225,6 +228,24 @@ export const useTables = (userId: string | undefined) => {
     ));
   }, []);
 
+  const updateTableBudget = useCallback(async (tableId: string, budget: number) => {
+    const { error } = await supabase
+      .from('monthly_tables')
+      .update({ budget } as any)
+      .eq('id', tableId);
+
+    if (error) {
+      console.error('Error updating table budget:', error);
+      throw error;
+    }
+
+    setTables(prev => prev.map(t => 
+      t.id === tableId 
+        ? { ...t, budget }
+        : t
+    ));
+  }, []);
+
   return {
     tables,
     isLoading,
@@ -233,6 +254,7 @@ export const useTables = (userId: string | undefined) => {
     addExpense,
     updateExpense,
     deleteExpense,
+    updateTableBudget, // Exportar nueva función
     refreshTables: loadTables,
   };
 };

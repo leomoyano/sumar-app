@@ -21,6 +21,7 @@ export interface MonthlyTable {
   id: string;
   name: string; // Ej: "Enero 2026"
   userId: string;
+  budget: number; // Presupuesto general para el mes
   expenses: Expense[];
   createdAt: string;
   updatedAt: string;
