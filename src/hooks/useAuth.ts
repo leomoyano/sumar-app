@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 export interface User {
   id: string;
@@ -14,8 +14,11 @@ const AUTH_TIMEOUT_MS = 5000;
 // Fast synchronous user creation (doesn't block UI)
 const getBaseUser = (supabaseUser: SupabaseUser): User => ({
   id: supabaseUser.id,
-  email: supabaseUser.email || '',
-  name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario',
+  email: supabaseUser.email || "",
+  name:
+    supabaseUser.user_metadata?.name ||
+    supabaseUser.email?.split("@")[0] ||
+    "Usuario",
 });
 
 export const useAuth = () => {
@@ -28,31 +31,34 @@ export const useAuth = () => {
   const enrichUserWithProfile = useCallback(async (userId: string) => {
     try {
       const { data: profile } = await supabase
-        .from('profiles')
-        .select('name')
-        .eq('user_id', userId)
+        .from("profiles")
+        .select("name")
+        .eq("user_id", userId)
         .maybeSingle();
-      
+
       if (profile?.name) {
-        setUser(prev => prev ? { ...prev, name: profile.name } : null);
+        setUser((prev) => (prev ? { ...prev, name: profile.name } : null));
       }
     } catch (error) {
       // Profile enrichment is best-effort, don't break anything
-      console.warn('Could not enrich user profile:', error);
+      console.warn("Could not enrich user profile:", error);
     }
   }, []);
 
   // Process user and unlock loading state
-  const handleUser = useCallback((supabaseUser: SupabaseUser | null) => {
-    if (supabaseUser) {
-      const baseUser = getBaseUser(supabaseUser);
-      setUser(baseUser);
-      // Enrich in background (non-blocking)
-      enrichUserWithProfile(supabaseUser.id);
-    } else {
-      setUser(null);
-    }
-  }, [enrichUserWithProfile]);
+  const handleUser = useCallback(
+    (supabaseUser: SupabaseUser | null) => {
+      if (supabaseUser) {
+        const baseUser = getBaseUser(supabaseUser);
+        setUser(baseUser);
+        // Enrich in background (non-blocking)
+        enrichUserWithProfile(supabaseUser.id);
+      } else {
+        setUser(null);
+      }
+    },
+    [enrichUserWithProfile],
+  );
 
   useEffect(() => {
     // Prevent double initialization in React StrictMode
@@ -64,19 +70,21 @@ export const useAuth = () => {
     // Safety timeout - force unlock loading after timeout
     timeoutRef.current = setTimeout(() => {
       if (isMounted && isLoading) {
-        console.warn('Auth initialization timed out, forcing loading to false');
+        console.warn("Auth initialization timed out, forcing loading to false");
         setIsLoading(false);
       }
     }, AUTH_TIMEOUT_MS);
 
     // 1. Set up auth state listener FIRST (recommended pattern)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
-      
+
       try {
         handleUser(session?.user || null);
       } catch (error) {
-        console.error('Error in auth state change handler:', error);
+        console.error("Error in auth state change handler:", error);
         setUser(null);
       } finally {
         // Always unlock loading on any auth event
@@ -91,17 +99,20 @@ export const useAuth = () => {
     // 2. Check for existing session AFTER setting up listener
     const initializeSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
-          console.error('Error getting session:', error);
+          console.error("Error getting session:", error);
         }
-        
+
         if (isMounted) {
           handleUser(session?.user || null);
         }
       } catch (error) {
-        console.error('Error initializing session:', error);
+        console.error("Error initializing session:", error);
         if (isMounted) {
           setUser(null);
         }
@@ -127,25 +138,41 @@ export const useAuth = () => {
     };
   }, [handleUser, isLoading]);
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        setIsLoading(false);
         return { success: false, error: error.message };
       }
 
+      if (data.user) {
+        handleUser(data.user);
+      }
+
+      setIsLoading(false);
       return { success: true };
     } catch (err) {
-      return { success: false, error: 'Error inesperado al iniciar sesión' };
+      setIsLoading(false);
+      return { success: false, error: "Error inesperado al iniciar sesión" };
     }
   };
 
-  const register = async (email: string, password: string, name: string): Promise<{ success: boolean; error?: string }> => {
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -156,12 +183,19 @@ export const useAuth = () => {
       });
 
       if (error) {
+        setIsLoading(false);
         return { success: false, error: error.message };
       }
 
+      if (data.user) {
+        handleUser(data.user);
+      }
+
+      setIsLoading(false);
       return { success: true };
     } catch (err) {
-      return { success: false, error: 'Error inesperado al registrarse' };
+      setIsLoading(false);
+      return { success: false, error: "Error inesperado al registrarse" };
     }
   };
 

@@ -13,7 +13,7 @@
 @layer base {
   :root {
     /* Core Colors */
-    --background: 0 0% 98%;
+    --background: 220 14% 96%;
     --foreground: 220 15% 15%;
 
     --card: 0 0% 100%;
@@ -69,17 +69,32 @@
     --chart-5: 220 10% 50%;
 
     /* Typography */
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --font-sans:
+      "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      "Noto Sans", sans-serif;
+    --font-mono:
+      "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace;
 
     /* Shadows - Soft, premium elevation */
     --shadow-2xs: 0 1px 2px 0 hsl(220 15% 15% / 0.03);
     --shadow-xs: 0 1px 3px 0 hsl(220 15% 15% / 0.04);
-    --shadow-sm: 0 2px 6px -1px hsl(220 15% 15% / 0.05), 0 1px 3px -1px hsl(220 15% 15% / 0.03);
-    --shadow: 0 4px 12px -2px hsl(220 15% 15% / 0.06), 0 2px 4px -2px hsl(220 15% 15% / 0.03);
-    --shadow-md: 0 6px 16px -4px hsl(220 15% 15% / 0.08), 0 2px 6px -2px hsl(220 15% 15% / 0.04);
-    --shadow-lg: 0 12px 32px -8px hsl(220 15% 15% / 0.1), 0 4px 12px -4px hsl(220 15% 15% / 0.05);
-    --shadow-xl: 0 20px 48px -12px hsl(220 15% 15% / 0.12), 0 8px 20px -8px hsl(220 15% 15% / 0.06);
+    --shadow-sm:
+      0 2px 6px -1px hsl(220 15% 15% / 0.05),
+      0 1px 3px -1px hsl(220 15% 15% / 0.03);
+    --shadow:
+      0 4px 12px -2px hsl(220 15% 15% / 0.06),
+      0 2px 4px -2px hsl(220 15% 15% / 0.03);
+    --shadow-md:
+      0 6px 16px -4px hsl(220 15% 15% / 0.08),
+      0 2px 6px -2px hsl(220 15% 15% / 0.04);
+    --shadow-lg:
+      0 12px 32px -8px hsl(220 15% 15% / 0.1),
+      0 4px 12px -4px hsl(220 15% 15% / 0.05);
+    --shadow-xl:
+      0 20px 48px -12px hsl(220 15% 15% / 0.12),
+      0 8px 20px -8px hsl(220 15% 15% / 0.06);
     --shadow-2xl: 0 32px 64px -16px hsl(220 15% 15% / 0.16);
 
     /* Glass effect for modals/floating */
@@ -146,11 +161,16 @@
     /* Shadows - Softer in dark mode */
     --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
     --shadow-xs: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
-    --shadow-sm: 0 2px 6px -1px hsl(0 0% 0% / 0.25), 0 1px 3px -1px hsl(0 0% 0% / 0.15);
-    --shadow: 0 4px 12px -2px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.15);
-    --shadow-md: 0 6px 16px -4px hsl(0 0% 0% / 0.35), 0 2px 6px -2px hsl(0 0% 0% / 0.2);
-    --shadow-lg: 0 12px 32px -8px hsl(0 0% 0% / 0.4), 0 4px 12px -4px hsl(0 0% 0% / 0.25);
-    --shadow-xl: 0 20px 48px -12px hsl(0 0% 0% / 0.5), 0 8px 20px -8px hsl(0 0% 0% / 0.3);
+    --shadow-sm:
+      0 2px 6px -1px hsl(0 0% 0% / 0.25), 0 1px 3px -1px hsl(0 0% 0% / 0.15);
+    --shadow:
+      0 4px 12px -2px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.15);
+    --shadow-md:
+      0 6px 16px -4px hsl(0 0% 0% / 0.35), 0 2px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg:
+      0 12px 32px -8px hsl(0 0% 0% / 0.4), 0 4px 12px -4px hsl(0 0% 0% / 0.25);
+    --shadow-xl:
+      0 20px 48px -12px hsl(0 0% 0% / 0.5), 0 8px 20px -8px hsl(0 0% 0% / 0.3);
     --shadow-2xl: 0 32px 64px -16px hsl(0 0% 0% / 0.6);
 
     /* Glass effect */
