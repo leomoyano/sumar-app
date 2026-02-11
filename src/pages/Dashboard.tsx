@@ -65,6 +65,7 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import ThemeToggle from "@/components/ThemeToggle";
 import MonthStatus from "@/components/dashboard/MonthStatus";
 import MagicBar from "@/components/dashboard/MagicBar";
+import ForgottenExpensesAlert from "@/components/dashboard/ForgottenExpensesAlert";
 import { exportTableToPdf } from "@/lib/exportPdf";
 
 const MONTHS_ES = [
@@ -332,6 +333,9 @@ const Dashboard = () => {
 
         {/* Main Status Hero */}
         <MonthStatus userId={user?.id} />
+
+        {/* Alerta de Gastos Olvidados (AI) */}
+        <ForgottenExpensesAlert tables={tables} />
 
         {/* Barra Inteligente (AI) */}
         <MagicBar onExpenseParsed={handleMagicExpense} isLoading={isLoading} />
