@@ -1,73 +1,62 @@
-# Welcome to your Lovable project
+# Sumar 🚀
 
-## Project info
+**Sumar** es tu gestor inteligente de finanzas personales, diseñado para ayudarte a tomar el control total de tus gastos mensuales con una estética moderna, limpia y premium.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## ✨ Características Principal
 
-## How can I edit this code?
+- **Presupuesto Mensual Inteligente**: Establece metas de gasto por mes y visualiza tu progreso en tiempo real.
+- **Doble Moneda (ARS/USD)**: Conversión automática basada en el Dólar Blue para entender el valor real de tus gastos.
+- **Categorización Flexible**: Organiza tus gastos por categorías configurables.
+- **Gastos Fijos**: Automatiza la carga de tus gastos fijos (alquiler, servicios, suscripciones) en cada nueva tabla mensual.
+- **Análisis Visual**: Gráficos dinámicos para entender la distribución y evolución de tus finanzas.
+- **Exportación a PDF**: Genera reportes detallados de tus tablas de gastos con un clic.
+- **Privacidad Total**: Tus datos se gestionan de forma segura a través de Supabase.
 
-There are several ways of editing your application.
+## 🛠️ Tecnologías
 
-**Use Lovable**
+Este proyecto está construido con un stack moderno y profesional:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **Frontend**: [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes UI**: [Shadcn/UI](https://ui.shadcn.com/)
+- **Iconografía**: [Lucide React](https://lucide.dev/)
+- **Base de Datos & Auth**: [Supabase](https://supabase.com/)
+- **Estado**: [Zustand](https://docs.pmnd.rs/zustand/) & [TanStack Query](https://tanstack.com/query/latest)
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Inicio Rápido
 
-**Use your preferred IDE**
+1. **Instalación**:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+   ```bash
+   npm install
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Entorno**:
+   Crea un archivo `.env` basado en `.env.example` y agrega tus credenciales de Supabase.
 
-Follow these steps:
+3. **Desarrollo**:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+   ```bash
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **Producción**:
+   ```bash
+   npm run build
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🔐 Configuración de Supabase
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Este proyecto requiere una instancia de Supabase con las siguientes tablas:
 
-**Edit a file directly in GitHub**
+- `expenses`
+- `monthly_tables`
+- `fixed_expenses`
+- `budgets`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Las migraciones se encuentran en la carpeta `/supabase/migrations`.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+_Desarrollado con ❤️ para ayudarte a sumar mejores decisiones financieras._
