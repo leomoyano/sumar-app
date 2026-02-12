@@ -86,15 +86,12 @@ const Login = () => {
       {/* Left Panel - Features */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-center">
         <div className="max-w-md mx-auto space-y-8">
-          <div className="flex items-center gap-4">
+          <div className="flex justify-center">
             <img
               src={logo}
               alt="Sumar"
-              className="h-16 w-16 rounded-2xl object-cover shadow-sm border border-white/10"
+              className="h-32 w-auto object-contain drop-shadow-sm"
             />
-            <h1 className="text-4xl font-bold text-primary-foreground">
-              {t("login.title")}
-            </h1>
           </div>
           <p className="text-primary-foreground/80 text-lg">
             {t("login.subtitle")}
@@ -151,11 +148,8 @@ const Login = () => {
               <img
                 src={logo}
                 alt="Sumar"
-                className="h-14 w-14 mx-auto mb-4 rounded-2xl lg:hidden object-cover shadow-sm border"
+                className="h-20 w-auto mx-auto mb-2 object-contain lg:hidden"
               />
-              <CardTitle className="text-2xl font-bold">
-                {t("login.title")}
-              </CardTitle>
               <CardDescription>{t("login.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
