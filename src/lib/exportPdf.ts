@@ -98,6 +98,7 @@
   });
 
   // Add exchange rate note at the bottom
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const finalY = (doc as any).lastAutoTable.finalY + 15;
   
   // Draw a subtle box for the note

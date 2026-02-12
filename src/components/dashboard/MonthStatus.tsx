@@ -108,7 +108,7 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
       daysInMonth,
       hasBudget: totalBudget > 0,
     };
-  }, [tables, getTotalBudget, language]);
+  }, [tables, language]);
 
   if (isLoadingBudgets || isLoadingTables) {
     return <Card className="w-full h-48 animate-pulse bg-muted/50" />;

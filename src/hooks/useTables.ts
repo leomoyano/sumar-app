@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Expense {
@@ -21,9 +21,33 @@ export interface MonthlyTable {
   updatedAt: string;
 }
 
+interface RawExpense {
+  id: string;
+  table_id: string;
+  name: string;
+  amount: number;
+  amount_usd?: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Define raw database type for monthly_tables
+interface RawMonthlyTable {
+  id: string;
+  name: string;
+  user_id: string;
+  budget: number;
+  created_at: string;
+  updated_at: string;
+}
+
+
+
 export const useTables = (userId: string | undefined) => {
   const [tables, setTables] = useState<MonthlyTable[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
 
   const loadTables = useCallback(async () => {
     if (!userId) {
@@ -45,7 +69,7 @@ export const useTables = (userId: string | undefined) => {
       // Fetch expenses for all tables
       const tableIds = tablesData?.map(t => t.id) || [];
       
-      let expensesData: any[] = [];
+      let expensesData: RawExpense[] = [];
       if (tableIds.length > 0) {
         const { data, error: expensesError } = await supabase
           .from('expenses')
@@ -57,12 +81,11 @@ export const useTables = (userId: string | undefined) => {
         expensesData = data || [];
       }
 
-      // Map expenses to tables
-      const tablesWithExpenses: MonthlyTable[] = (tablesData || []).map(table => ({
+      const tablesWithExpenses: MonthlyTable[] = (tablesData as unknown as RawMonthlyTable[] || []).map(table => ({
         id: table.id,
         name: table.name,
         userId: table.user_id,
-        budget: Number((table as any).budget || 0), // Nuevo campo
+        budget: Number(table.budget || 0), // Use RawMonthlyTable type to access budget directly
         createdAt: table.created_at,
         updatedAt: table.updated_at,
         expenses: expensesData
@@ -180,7 +203,12 @@ export const useTables = (userId: string | undefined) => {
     expenseId: string, 
     updates: Partial<Expense>
   ) => {
-    const updateData: any = {};
+    const updateData: {
+      name?: string;
+      amount?: number;
+      amount_usd?: number;
+      tags?: string[];
+    } = {};
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.amount !== undefined) updateData.amount = updates.amount;
     if (updates.amountUSD !== undefined) updateData.amount_usd = updates.amountUSD;
@@ -231,7 +259,7 @@ export const useTables = (userId: string | undefined) => {
   const updateTableBudget = useCallback(async (tableId: string, budget: number) => {
     const { error } = await supabase
       .from('monthly_tables')
-      .update({ budget } as any)
+      .update({ budget } as unknown as { budget: number })
       .eq('id', tableId);
 
     if (error) {

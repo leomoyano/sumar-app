@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DEFAULT_CATEGORIES } from '@/types';
 
@@ -13,10 +13,10 @@ export const useTags = (userId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Combine default categories with custom ones
-  const allTags: Tag[] = [
+  const allTags: Tag[] = useMemo(() => [
     ...DEFAULT_CATEGORIES.map(name => ({ id: name, name, isCustom: false })),
     ...customTags.map(name => ({ id: `custom-${name}`, name, isCustom: true })),
-  ];
+  ], [customTags]);
 
   const loadTags = useCallback(async () => {
     if (!userId) {
