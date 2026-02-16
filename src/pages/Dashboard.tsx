@@ -53,7 +53,6 @@ import {
   Calendar,
   DollarSign,
   RefreshCw,
-  LogOut,
   TrendingUp,
   Repeat,
   FileDown,
@@ -61,8 +60,8 @@ import {
   Target,
 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
-import LanguageSwitch from "@/components/LanguageSwitch";
 import ThemeToggle from "@/components/ThemeToggle";
+import UserMenu from "@/components/UserMenu";
 import MonthStatus from "@/components/dashboard/MonthStatus";
 import MagicBar from "@/components/dashboard/MagicBar";
 import ForgottenExpensesAlert from "@/components/dashboard/ForgottenExpensesAlert";
@@ -99,7 +98,7 @@ const MONTHS_EN = [
 ];
 
 const Dashboard = () => {
-  const { user, logout } = useAuthContext();
+  const { user } = useAuthContext();
   const { t, language } = useLanguage();
   const { tables, createTable, deleteTableById, addExpense, isLoading } =
     useTables(user?.id);
@@ -313,16 +312,9 @@ const Dashboard = () => {
               </Button>
             </div>
             <ThemeToggle />
-            <LanguageSwitch />
-            <Button
-              variant="ghost"
-              onClick={logout}
-              size="sm"
-              className="gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("dashboard.logout")}</span>
-            </Button>
+            <div className="pl-2 ml-2 border-l border-border h-6 flex items-center">
+              <UserMenu />
+            </div>
           </div>
         </header>
 
