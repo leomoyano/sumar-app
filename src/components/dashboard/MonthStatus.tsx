@@ -36,45 +36,47 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const daysElapsed = now.getDate();
 
-    // Meses en español/inglés para buscar en el nombre de la tabla
-    const months =
-      language === "es"
-        ? [
-            "enero",
-            "febrero",
-            "marzo",
-            "abril",
-            "mayo",
-            "junio",
-            "julio",
-            "agosto",
-            "septiembre",
-            "octubre",
-            "noviembre",
-            "diciembre",
-          ]
-        : [
-            "january",
-            "february",
-            "march",
-            "april",
-            "may",
-            "june",
-            "july",
-            "august",
-            "september",
-            "october",
-            "november",
-            "december",
-          ];
+    // Meses en español e inglés para buscar en el nombre de la tabla
+    const monthsEs = [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre",
+    ];
+    const monthsEn = [
+      "january",
+      "february",
+      "march",
+      "april",
+      "may",
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
+    ];
 
-    const searchMonth = months[currentMonth];
+    const searchMonthEs = monthsEs[currentMonth];
+    const searchMonthEn = monthsEn[currentMonth];
     const searchYear = currentYear.toString();
 
-    // Buscar tabla que coincida con mes y año actual
+    // Buscar tabla que coincida con mes y año actual (en español O inglés)
     const currentTable = tables.find((t) => {
       const tableName = t.name.toLowerCase();
-      return tableName.includes(searchMonth) && tableName.includes(searchYear);
+      const hasYear = tableName.includes(searchYear);
+      const hasMonth =
+        tableName.includes(searchMonthEs) || tableName.includes(searchMonthEn);
+      return hasYear && hasMonth;
     });
 
     const totalSpent = currentTable
@@ -108,7 +110,7 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
       daysInMonth,
       hasBudget: totalBudget > 0,
     };
-  }, [tables, language]);
+  }, [tables]);
 
   if (isLoadingBudgets || isLoadingTables) {
     return <Card className="w-full h-48 animate-pulse bg-muted/50" />;
