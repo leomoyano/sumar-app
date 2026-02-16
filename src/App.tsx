@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import ExpenseTable from "./pages/ExpenseTable";
 import FixedExpenses from "./pages/FixedExpenses";
 import Budgets from "./pages/Budgets";
+import Subscriptions from "./pages/Subscriptions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,7 +19,7 @@ const queryClient = new QueryClient();
 // Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuthContext();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -26,18 +27,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
 // Public Route wrapper (redirect if authenticated)
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuthContext();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -45,56 +46,64 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
+
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Navigate to="/login" replace />} />
-    <Route 
-      path="/login" 
+    <Route
+      path="/login"
       element={
         <PublicRoute>
           <Login />
         </PublicRoute>
-      } 
+      }
     />
-    <Route 
-      path="/dashboard" 
+    <Route
+      path="/dashboard"
       element={
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>
-      } 
+      }
     />
-    <Route 
-      path="/table/:tableId" 
+    <Route
+      path="/table/:tableId"
       element={
         <ProtectedRoute>
           <ExpenseTable />
         </ProtectedRoute>
-      } 
+      }
     />
-    <Route 
-      path="/fixed-expenses" 
+    <Route
+      path="/fixed-expenses"
       element={
         <ProtectedRoute>
           <FixedExpenses />
         </ProtectedRoute>
-      } 
+      }
     />
-    <Route 
-      path="/budgets" 
+    <Route
+      path="/budgets"
       element={
         <ProtectedRoute>
           <Budgets />
         </ProtectedRoute>
-      } 
+      }
+    />
+    <Route
+      path="/subscriptions"
+      element={
+        <ProtectedRoute>
+          <Subscriptions />
+        </ProtectedRoute>
+      }
     />
     <Route path="*" element={<NotFound />} />
   </Routes>
