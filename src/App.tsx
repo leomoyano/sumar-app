@@ -14,6 +14,7 @@ import FixedExpenses from "./pages/FixedExpenses";
 import Budgets from "./pages/Budgets";
 import Subscriptions from "./pages/Subscriptions";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -112,6 +113,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Settings />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/profile"
+      element={
+        <ProtectedRoute>
+          <Profile />
         </ProtectedRoute>
       }
     />
