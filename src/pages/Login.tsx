@@ -15,7 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Wallet, TrendingUp, Shield } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { SumarLogo } from "@/components/ui/BrandLogo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -87,11 +87,7 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-center">
         <div className="max-w-md mx-auto space-y-8">
           <div className="flex justify-center">
-            <img
-              src={logo}
-              alt="Sumar"
-              className="h-32 w-auto object-contain drop-shadow-sm"
-            />
+            <SumarLogo className="h-32 w-auto" />
           </div>
           <p className="text-primary-foreground/80 text-lg">
             {t("login.subtitle")}
@@ -135,21 +131,68 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Auth Forms */}
-      <div className="w-full lg:w-1/2 flex flex-col">
+      <div className="w-full lg:w-1/2 flex flex-col relative overflow-hidden">
+        {/* Decorative background pattern */}
+        <div className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-30">
+          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern
+                id="sumar-pattern"
+                x="0"
+                y="0"
+                width="60"
+                height="60"
+                patternUnits="userSpaceOnUse"
+              >
+                {/* Larger, distinct Plus signs */}
+                <path
+                  d="M 25 30 L 35 30 M 30 25 L 30 35"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="text-primary/60"
+                />
+                {/* Secondary smaller plus signs for texture */}
+                <path
+                  d="M 58 60 L 62 60 M 60 58 L 60 62"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  className="text-primary/40"
+                />
+              </pattern>
+            </defs>
+            {/* Base grid pattern */}
+            <rect width="100%" height="100%" fill="url(#sumar-pattern)" />
+
+            {/* Large abstract shapes for depth */}
+            <circle
+              cx="90%"
+              cy="10%"
+              r="30%"
+              fill="currentColor"
+              className="text-primary/5 blur-3xl"
+            />
+            <circle
+              cx="10%"
+              cy="90%"
+              r="30%"
+              fill="currentColor"
+              className="text-primary/5 blur-3xl"
+            />
+          </svg>
+        </div>
+
         {/* Language Switch & Theme Toggle - Top Right */}
-        <div className="flex justify-end items-center gap-2 p-4">
+        <div className="flex justify-end items-center gap-2 p-4 relative z-10">
           <ThemeToggle />
           <LanguageSwitch />
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-6">
-          <Card className="w-full max-w-md shadow-lg">
+        <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+          <Card className="w-full max-w-md shadow-lg backdrop-blur-sm">
             <CardHeader className="text-center">
-              <img
-                src={logo}
-                alt="Sumar"
-                className="h-20 w-auto mx-auto mb-2 object-contain lg:hidden"
-              />
+              <SumarLogo className="h-16 w-auto mx-auto mb-4 lg:hidden" />
               <CardDescription>{t("login.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>

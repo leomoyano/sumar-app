@@ -1,0 +1,12 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <mask id="favicon-mask">
+    <rect x="0" y="0" width="100" height="100" fill="white" />
+    <rect x="0" y="38" width="100" height="14" fill="black" />
+    <rect x="43" y="15" width="14" height="85" fill="black" />
+  </mask>
+  <path
+    d="M20 15V60C20 73.8 31.2 85 45 85H55C68.8 85 80 73.8 80 60V15H60V60C60 62.8 57.8 65 55 65H45C42.2 65 40 62.8 40 60V15H20Z"
+    fill="black"
+    mask="url(#favicon-mask)"
+  />
+</svg>

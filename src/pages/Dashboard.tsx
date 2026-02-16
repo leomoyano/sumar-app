@@ -67,8 +67,7 @@ import MonthStatus from "@/components/dashboard/MonthStatus";
 import MagicBar from "@/components/dashboard/MagicBar";
 import ForgottenExpensesAlert from "@/components/dashboard/ForgottenExpensesAlert";
 import { exportTableToPdf } from "@/lib/exportPdf";
-import logo from "@/assets/logo.png";
-import isotipo from "@/assets/isotipo.png";
+import { SumarIcon } from "@/components/ui/BrandLogo";
 
 const MONTHS_ES = [
   "Enero",
@@ -283,11 +282,7 @@ const Dashboard = () => {
         {/* Header */}
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="flex items-center gap-4">
-            <img
-              src={isotipo}
-              alt="Sumar Isotipo"
-              className="h-16 w-16 object-cover rounded-xl shadow-sm"
-            />
+            <SumarIcon className="h-12 w-12 text-primary" />
             <div className="space-y-0.5">
               <h1 className="text-2xl font-bold text-foreground tracking-tight">
                 {t("dashboard.welcome")}, {user?.name}

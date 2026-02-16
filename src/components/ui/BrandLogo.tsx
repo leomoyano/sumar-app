@@ -1,0 +1,74 @@
+import React from "react";
+import logoSrc from "@/assets/sumar-logo.svg";
+
+/**
+ * SumarIcon - The official vector 'u' icon.
+ * Path taken from the provided SVG asset.
+ * Uses fill="currentColor" to inherit text color.
+ */
+export const SumarIcon = ({
+  className = "h-8 w-8",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 1957 1245"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="m1706.17 109.24c21.05 0.74 44.11 3.6 57.84 7.18 12.55 3.27 31.73 9.68 42.61 14.25 10.88 4.56 27.32 13.23 36.53 19.26 9.21 6.04 25 19.23 35.1 29.33 10.1 10.1 23.73 26.58 30.3 36.63 6.57 10.04 17.66 29.9 24.64 44.13 6.98 14.23 14.92 33.07 17.64 41.86 2.8 9.03 8.26 18.63 20.17 28.16v815.8h-216.13l-0.76-346.26c-0.74-338.98-0.89-346.61-6.91-363-3.39-9.21-10.14-23.59-15.01-31.96-4.88-8.38-16.49-22.9-25.81-32.27-9.33-9.38-23.8-21.41-32.17-26.74-8.38-5.34-23.44-12.28-33.49-15.42-10.04-3.14-28.54-6.69-41.09-7.89-14.36-1.36-33-0.7-50.23 1.79-20.33 2.94-33.67 7.06-51.75 15.97-15.06 7.42-31.18 18.54-42.25 29.15-9.84 9.43-23.85 26.05-31.14 36.93-7.29 10.88-16.36 29.69-27.06 63.81l-229.83 0.11v-343.97h207l0.19 6.84c0.1 3.77 1.81 43.45 3.8 88.18 3.47 77.99 3.9 81.61 10.51 88.28 5.52 5.56 7.95 6.28 12.18 3.57 2.9-1.86 12.15-16.92 20.55-33.48 8.39-16.56 20.86-38.33 27.7-48.37 6.84-10.05 21.21-27.03 31.92-37.75 10.71-10.71 27.01-24.56 36.22-30.78 9.21-6.21 24.27-15.1 33.48-19.75 9.21-4.65 22.22-10.46 28.92-12.91 6.7-2.45 19.03-6.46 27.4-8.92 8.37-2.45 26.18-6.38 39.57-8.73 15.26-2.67 37.42-3.8 59.36-3.03zm-1735.17 16.85h234.47l0.85 329.51c0.8 307.53 1.23 330.74 6.36 347.79 3.02 10.04 9.83 27.14 15.12 38 6.28 12.88 18.07 28.57 33.97 45.18 19.44 20.3 29.26 27.86 48.71 37.45 15.64 7.72 33.6 13.69 50.22 16.71 18.01 3.26 35.13 4.15 56.32 2.92 16.74-0.98 39.34-3.91 50.22-6.52 10.89-2.61 28.69-9.41 39.58-15.11 10.88-5.7 28.55-18.29 39.27-27.97 10.71-9.68 25.36-25.83 32.54-35.87 7.19-10.05 16.73-27.17 21.2-38.05 4.46-10.89 9.8-28.01 15.58-56.32l262.78-1.52v383.55l-245.05 0.01-2.13-92.09c-2.02-87.58-2.43-92.38-8.41-98.17-4.96-4.81-7.4-5.38-11.57-2.72-2.91 1.85-12.58 16.23-21.5 31.96-8.92 15.73-22.62 37.49-30.44 48.35-7.82 10.87-23.16 28.68-34.08 39.58-10.93 10.89-30.1 26.54-42.62 34.77-12.52 8.22-33.03 19.33-45.59 24.68-12.55 5.36-34.47 12.71-48.7 16.34-14.23 3.63-40.26 8.09-57.84 9.9-17.58 1.82-44.29 2.46-59.36 1.43-15.07-1.03-38.35-3.83-51.75-6.2-13.39-2.38-35.31-7.82-48.7-12.09-13.39-4.28-35.31-13.4-48.71-20.28-13.39-6.88-33.81-19.58-45.38-28.23-11.57-8.65-27.86-23.27-36.2-32.47-8.34-9.21-20.71-24.96-27.47-35.01-6.77-10.05-18.56-31.26-40.1-76.01zm648.44 0h258.75v343.97h-258.75zm547.93 636.21h225.26v383.55h-225.26z"
+    />
+  </svg>
+);
+
+/**
+ * SumarLogo - The full brand logo.
+ * Note: The source SVG contains an embedded raster image.
+ * This component renders that image, allowing for className styling (e.g. sizing).
+ */
+export const SumarLogo = ({
+  className = "h-12 w-auto",
+  ...props
+}: {
+  className?: string;
+} & React.HTMLAttributes<HTMLImageElement>) => {
+  // Auto-detect theme from document root
+  const [isDark, setIsDark] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+
+    checkTheme();
+
+    // Watch for theme changes
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Debug: log current theme
+  return (
+    <img
+      src={logoSrc}
+      alt="Sumar Logo"
+      style={{
+        // Light mode (isDark=false): Need WHITE. Source seems to be White -> NONE
+        // Dark mode (isDark=true): Need BLACK. Source White -> INVERT
+        filter: isDark ? "invert(1) brightness(0)" : "none",
+        transition: "filter 0.3s ease-in-out",
+      }}
+      className={className}
+      {...props}
+    />
+  );
+};

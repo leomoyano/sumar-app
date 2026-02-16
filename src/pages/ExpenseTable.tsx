@@ -1,53 +1,84 @@
-import { useState, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useTables } from '@/hooks/useTables';
-import { useDollarRate } from '@/hooks/useDollarRate';
-import { formatARS, formatUSD, convertARStoUSD } from '@/lib/format';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { toast } from 'sonner';
- import { Plus, ArrowLeft, Trash2, Tag, Calculator, FileDown } from 'lucide-react';
-import AppLayout from '@/components/layout/AppLayout';
-import ExpenseForm from '@/components/ExpenseForm';
-import TagFilter from '@/components/TagFilter';
-import ExpenseBarChart from '@/components/charts/ExpenseBarChart';
-import ExpensePieChart from '@/components/charts/ExpensePieChart';
-import LanguageSwitch from '@/components/LanguageSwitch';
-import ThemeToggle from '@/components/ThemeToggle';
- import { exportTableToPdf } from '@/lib/exportPdf';
- import { useLanguage as useLang } from '@/contexts/LanguageContext';
+import { useState, useMemo } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTables } from "@/hooks/useTables";
+import { useDollarRate } from "@/hooks/useDollarRate";
+import { formatARS, formatUSD, convertARStoUSD } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "sonner";
+import {
+  Plus,
+  ArrowLeft,
+  Trash2,
+  Tag,
+  Calculator,
+  FileDown,
+} from "lucide-react";
+import AppLayout from "@/components/layout/AppLayout";
+import ExpenseForm from "@/components/ExpenseForm";
+import TagFilter from "@/components/TagFilter";
+import ExpenseBarChart from "@/components/charts/ExpenseBarChart";
+import ExpensePieChart from "@/components/charts/ExpensePieChart";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import ThemeToggle from "@/components/ThemeToggle";
+import { exportTableToPdf } from "@/lib/exportPdf";
+import { SumarIcon } from "@/components/ui/BrandLogo";
 
 const ExpenseTable = () => {
   const { tableId } = useParams<{ tableId: string }>();
   const navigate = useNavigate();
   const { user } = useAuthContext();
-   const { t, language } = useLanguage();
+  const { t, language } = useLanguage();
   const { tables, addExpense, deleteExpense, isLoading } = useTables(user?.id);
   const { rate } = useDollarRate();
-  
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const table = tables.find(t => t.id === tableId);
+  const table = tables.find((t) => t.id === tableId);
 
   const allTags = useMemo(() => {
     if (!table) return [];
     const tags = new Set<string>();
-    table.expenses.forEach(exp => exp.tags.forEach(tag => tags.add(tag)));
+    table.expenses.forEach((exp) => exp.tags.forEach((tag) => tags.add(tag)));
     return Array.from(tags);
   }, [table]);
 
   const filteredExpenses = useMemo(() => {
     if (!table) return [];
     if (selectedTags.length === 0) return table.expenses;
-    return table.expenses.filter(exp => 
-      selectedTags.some(tag => exp.tags.includes(tag))
+    return table.expenses.filter((exp) =>
+      selectedTags.some((tag) => exp.tags.includes(tag)),
     );
   }, [table, selectedTags]);
 
@@ -57,9 +88,14 @@ const ExpenseTable = () => {
     return { ars: totalARS, usd: totalUSD };
   }, [filteredExpenses, rate]);
 
-  const handleAddExpense = async (expense: { name: string; amount: number; tags: string[]; amountUSD?: number }) => {
+  const handleAddExpense = async (expense: {
+    name: string;
+    amount: number;
+    tags: string[];
+    amountUSD?: number;
+  }) => {
     if (!tableId) return;
-    
+
     try {
       await addExpense(tableId, {
         name: expense.name,
@@ -67,40 +103,43 @@ const ExpenseTable = () => {
         tags: expense.tags,
         amountUSD: expense.amountUSD,
       });
-      
-      toast.success(t('expenseForm.submit'));
+
+      toast.success(t("expenseForm.submit"));
       setIsDialogOpen(false);
     } catch (error) {
-      toast.error(t('common.error'));
+      toast.error(t("common.error"));
     }
   };
 
-  const handleDeleteExpense = async (expenseId: string, expenseName: string) => {
+  const handleDeleteExpense = async (
+    expenseId: string,
+    expenseName: string,
+  ) => {
     if (!tableId) return;
     try {
       await deleteExpense(tableId, expenseId);
-      toast.success(`${t('common.delete')}: "${expenseName}"`);
+      toast.success(`${t("common.delete")}: "${expenseName}"`);
     } catch (error) {
-      toast.error(t('common.error'));
+      toast.error(t("common.error"));
     }
   };
 
-   const handleExportPdf = () => {
-     if (!table || table.expenses.length === 0) {
-       toast.error(t('export.pdf.noExpenses'));
-       return;
-     }
-     
-     exportTableToPdf({
-       tableName: table.name,
-       expenses: table.expenses,
-       rate,
-       language
-     });
-     
-     toast.success(t('export.pdf.success'));
-   };
- 
+  const handleExportPdf = () => {
+    if (!table || table.expenses.length === 0) {
+      toast.error(t("export.pdf.noExpenses"));
+      return;
+    }
+
+    exportTableToPdf({
+      tableName: table.name,
+      expenses: table.expenses,
+      rate,
+      language,
+    });
+
+    toast.success(t("export.pdf.success"));
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -115,9 +154,9 @@ const ExpenseTable = () => {
     return (
       <AppLayout>
         <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-4">{t('common.error')}</h2>
-          <Button onClick={() => navigate('/dashboard')} variant="outline">
-            {t('expenseTable.back')}
+          <h2 className="text-xl font-semibold mb-4">{t("common.error")}</h2>
+          <Button onClick={() => navigate("/dashboard")} variant="outline">
+            {t("expenseTable.back")}
           </Button>
         </div>
       </AppLayout>
@@ -135,37 +174,45 @@ const ExpenseTable = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{table.name}</h1>
-              <p className="text-muted-foreground">
-                {table.expenses.length} {table.expenses.length !== 1 ? t('dashboard.expenses') : t('dashboard.expense')}
-              </p>
+            <div className="flex items-center gap-3">
+              <SumarIcon className="h-8 w-8 text-primary" />
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {table.name}
+                </h1>
+                <p className="text-muted-foreground">
+                  {table.expenses.length}{" "}
+                  {table.expenses.length !== 1
+                    ? t("dashboard.expenses")
+                    : t("dashboard.expense")}
+                </p>
+              </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <LanguageSwitch />
-             <Button 
-               variant="outline" 
-               className="gap-2"
-               onClick={handleExportPdf}
-             >
-               <FileDown className="h-4 w-4" />
-               {t('export.pdf')}
-             </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleExportPdf}
+            >
+              <FileDown className="h-4 w-4" />
+              {t("export.pdf")}
+            </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <Plus className="h-4 w-4" />
-                  {t('expenseTable.addExpense')}
+                  {t("expenseTable.addExpense")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>{t('expenseForm.title')}</DialogTitle>
+                  <DialogTitle>{t("expenseForm.title")}</DialogTitle>
                   <DialogDescription>
-                    {t('expenseTable.addExpense')}
+                    {t("expenseTable.addExpense")}
                   </DialogDescription>
                 </DialogHeader>
                 <ExpenseForm onSubmit={handleAddExpense} rate={rate} />
@@ -179,14 +226,16 @@ const ExpenseTable = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-2">
               <Calculator className="h-6 w-6" />
-              <span className="text-lg font-medium">{t('expenseTable.total')}</span>
+              <span className="text-lg font-medium">
+                {t("expenseTable.total")}
+              </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
               <div>
                 <p className="text-3xl font-bold">{formatARS(totals.ars)}</p>
                 {selectedTags.length > 0 && (
                   <p className="text-sm text-primary-foreground/70">
-                    ({t('tagFilter.filter')}: {selectedTags.length})
+                    ({t("tagFilter.filter")}: {selectedTags.length})
                   </p>
                 )}
               </div>
@@ -220,15 +269,15 @@ const ExpenseTable = () => {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Tag className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {t('expenseTable.noExpenses')}
+                {t("expenseTable.noExpenses")}
               </h3>
               <p className="text-muted-foreground text-center mb-4">
-                {t('expenseTable.noExpenses.description')}
+                {t("expenseTable.noExpenses.description")}
               </p>
               {selectedTags.length === 0 && (
                 <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  {t('expenseTable.addExpense')}
+                  {t("expenseTable.addExpense")}
                 </Button>
               )}
             </CardContent>
@@ -236,28 +285,42 @@ const ExpenseTable = () => {
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{t('expenseTable.analysis')}</CardTitle>
+              <CardTitle className="text-lg">
+                {t("expenseTable.analysis")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{t('expenseTable.expense.name')}</TableHead>
-                      <TableHead>{t('expenseTable.expense.category')}</TableHead>
-                      <TableHead className="text-right">{t('expenseTable.expense.amount')}</TableHead>
-                      <TableHead className="text-right">{t('expenseTable.expense.amountUSD')}</TableHead>
+                      <TableHead>{t("expenseTable.expense.name")}</TableHead>
+                      <TableHead>
+                        {t("expenseTable.expense.category")}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {t("expenseTable.expense.amount")}
+                      </TableHead>
+                      <TableHead className="text-right">
+                        {t("expenseTable.expense.amountUSD")}
+                      </TableHead>
                       <TableHead className="w-12"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredExpenses.map((expense) => (
                       <TableRow key={expense.id}>
-                        <TableCell className="font-medium">{expense.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {expense.name}
+                        </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {expense.tags.map((tag) => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
+                              <Badge
+                                key={tag}
+                                variant="secondary"
+                                className="text-xs"
+                              >
                                 {tag}
                               </Badge>
                             ))}
@@ -267,10 +330,9 @@ const ExpenseTable = () => {
                           {formatARS(expense.amount)}
                         </TableCell>
                         <TableCell className="text-right font-mono text-muted-foreground">
-                          {expense.amountUSD 
+                          {expense.amountUSD
                             ? formatUSD(expense.amountUSD)
-                            : formatUSD(convertARStoUSD(expense.amount, rate))
-                          }
+                            : formatUSD(convertARStoUSD(expense.amount, rate))}
                         </TableCell>
                         <TableCell>
                           <AlertDialog>
@@ -285,18 +347,27 @@ const ExpenseTable = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>{t('dashboard.deleteTable.title')}</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  {t("dashboard.deleteTable.title")}
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  {t('dashboard.deleteTable.description')}
+                                  {t("dashboard.deleteTable.description")}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                                <AlertDialogCancel>
+                                  {t("common.cancel")}
+                                </AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDeleteExpense(expense.id, expense.name)}
+                                  onClick={() =>
+                                    handleDeleteExpense(
+                                      expense.id,
+                                      expense.name,
+                                    )
+                                  }
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  {t('common.delete')}
+                                  {t("common.delete")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
