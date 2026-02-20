@@ -44,7 +44,7 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
 
   const handleSubmit = async () => {
     if (!name.trim() || !amount) {
-      toast.error(language === 'es' ? 'Completa todos los campos' : 'Fill in all fields');
+      toast.error(t('common.validation.requiredFields'));
       return;
     }
 
@@ -62,7 +62,7 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
       setSelectedCategory('');
       onOpenChange(false);
     } catch (error) {
-      toast.error(t('common.error'));
+      toast.error(t('common.error.generic'));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +77,7 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
     if (existingTag) {
       setSelectedCategory(existingTag.name);
       setNewCategory('');
-      toast.info(language === 'es' ? `Categoría "${existingTag.name}" seleccionada` : `Category "${existingTag.name}" selected`);
+      toast.info(t('common.category.selected').replace('{{name}}', existingTag.name));
       return;
     }
 
@@ -86,9 +86,9 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
       await addTag(categoryName);
       setSelectedCategory(categoryName);
       setNewCategory('');
-      toast.success(language === 'es' ? `Categoría "${categoryName}" creada` : `Category "${categoryName}" created`);
+      toast.success(t('common.category.created').replace('{{name}}', categoryName));
     } catch (error) {
-      toast.error(t('common.error'));
+      toast.error(t('common.error.categoryCreate'));
     } finally {
       setIsAddingCategory(false);
     }

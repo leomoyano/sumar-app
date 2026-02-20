@@ -172,11 +172,7 @@ const Budgets = () => {
       const amount = parseFloat(cleanAmount);
 
       if (isNaN(amount) || amount < 0 || !currentTable) {
-        toast.error(
-          language === "es"
-            ? "Ingresa un monto válido"
-            : "Enter a valid amount",
-        );
+        toast.error(t("common.validation.validAmount"));
         return;
       }
 
@@ -188,7 +184,7 @@ const Budgets = () => {
       );
       setIsGeneralDialogOpen(false);
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 
@@ -212,9 +208,7 @@ const Budgets = () => {
   const handleSaveBudget = async () => {
     const amount = parseFloat(budgetAmount);
     if (!selectedCategory || isNaN(amount) || amount <= 0) {
-      toast.error(
-        language === "es" ? "Ingresa un monto válido" : "Enter a valid amount",
-      );
+      toast.error(t("common.validation.validAmount"));
       return;
     }
 
@@ -227,7 +221,7 @@ const Budgets = () => {
       setEditingCategory(null);
       setBudgetAmount("");
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 
@@ -238,7 +232,7 @@ const Budgets = () => {
         language === "es" ? "Presupuesto eliminado" : "Budget deleted",
       );
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 

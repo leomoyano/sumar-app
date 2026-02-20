@@ -32,6 +32,30 @@ const Login = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const getFriendlyAuthError = (error: string | undefined, type: "login" | "register") => {
+    if (!error) {
+      return type === "login"
+        ? t("common.error.authLogin")
+        : t("common.error.authRegister");
+    }
+
+    const normalized = error.toLowerCase();
+    if (
+      normalized.includes("invalid login credentials") ||
+      normalized.includes("invalid credentials")
+    ) {
+      return t("common.error.invalidCredentials");
+    }
+
+    if (normalized.includes("already registered") || normalized.includes("already been registered")) {
+      return t("common.error.emailAlreadyRegistered");
+    }
+
+    return type === "login"
+      ? t("common.error.authLogin")
+      : t("common.error.authRegister");
+  };
+
   // Redirigir cuando el usuario se autentique exitosamente
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
@@ -50,7 +74,7 @@ const Login = () => {
       // Redirigir explícitamente para mayor seguridad
       navigate("/dashboard", { replace: true });
     } else {
-      toast.error(result.error || "Error");
+      toast.error(getFriendlyAuthError(result.error, "login"));
       setIsSubmitting(false);
     }
   };
@@ -76,7 +100,7 @@ const Login = () => {
       // Redirigir explícitamente para mayor seguridad
       navigate("/dashboard", { replace: true });
     } else {
-      toast.error(result.error || "Error");
+      toast.error(getFriendlyAuthError(result.error, "register"));
       setIsSubmitting(false);
     }
   };

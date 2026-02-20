@@ -8,6 +8,7 @@ import { Loader2, Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTags } from '@/hooks/useTags';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 
 interface ExpenseFormProps {
@@ -17,6 +18,7 @@ interface ExpenseFormProps {
 
 const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { tags, addTag, isLoading: tagsLoading } = useTags(user?.id);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
@@ -29,6 +31,7 @@ const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
     
     const amountNum = parseFloat(amount);
     if (!name.trim() || isNaN(amountNum) || amountNum <= 0) {
+      toast.error(t('common.validation.expenseFields'));
       return;
     }
 
@@ -53,7 +56,7 @@ const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
     if (existingTag) {
       setSelectedCategory(existingTag.name);
       setCustomCategory('');
-      toast.info(`Categoría "${existingTag.name}" seleccionada`);
+      toast.info(t('common.category.selected').replace('{{name}}', existingTag.name));
       return;
     }
 
@@ -63,10 +66,10 @@ const ExpenseForm = ({ onSubmit, rate }: ExpenseFormProps) => {
       const newTag = await addTag(categoryName);
       if (newTag) {
         setSelectedCategory(newTag.name);
-        toast.success(`Categoría "${newTag.name}" creada`);
+        toast.success(t('common.category.created').replace('{{name}}', newTag.name));
       }
     } catch (error) {
-      toast.error('Error al crear la categoría');
+      toast.error(t('common.error.categoryCreate'));
     } finally {
       setIsAddingCategory(false);
       setCustomCategory('');

@@ -29,24 +29,40 @@ const FixedExpensesPage = () => {
   const [editingExpense, setEditingExpense] = useState<FixedExpense | null>(null);
 
   const handleAdd = async (expense: { name: string; amount: number; tags: string[]; isActive: boolean }) => {
-    await addFixedExpense(expense);
-    toast.success(language === 'es' ? 'Gasto fijo agregado' : 'Fixed expense added');
+    try {
+      await addFixedExpense(expense);
+      toast.success(language === 'es' ? 'Gasto fijo agregado' : 'Fixed expense added');
+    } catch (error) {
+      toast.error(t('common.error.generic'));
+    }
   };
 
   const handleEdit = async (expense: { name: string; amount: number; tags: string[]; isActive: boolean }) => {
     if (!editingExpense) return;
-    await updateFixedExpense(editingExpense.id, expense);
-    setEditingExpense(null);
-    toast.success(language === 'es' ? 'Gasto fijo actualizado' : 'Fixed expense updated');
+    try {
+      await updateFixedExpense(editingExpense.id, expense);
+      setEditingExpense(null);
+      toast.success(language === 'es' ? 'Gasto fijo actualizado' : 'Fixed expense updated');
+    } catch (error) {
+      toast.error(t('common.error.generic'));
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await deleteFixedExpense(id);
-    toast.success(language === 'es' ? 'Gasto fijo eliminado' : 'Fixed expense deleted');
+    try {
+      await deleteFixedExpense(id);
+      toast.success(language === 'es' ? 'Gasto fijo eliminado' : 'Fixed expense deleted');
+    } catch (error) {
+      toast.error(t('common.error.generic'));
+    }
   };
 
   const handleToggleActive = async (id: string) => {
-    await toggleActive(id);
+    try {
+      await toggleActive(id);
+    } catch (error) {
+      toast.error(t('common.error.generic'));
+    }
   };
 
   const totalActive = fixedExpenses
