@@ -66,6 +66,7 @@ import MonthStatus from "@/components/dashboard/MonthStatus";
 import MagicBar from "@/components/dashboard/MagicBar";
 import ForgottenExpensesAlert from "@/components/dashboard/ForgottenExpensesAlert";
 import { exportTableToPdf } from "@/lib/exportPdf";
+import { findPreviousCalendarTable } from "@/lib/tablePeriod";
 import { SumarIcon } from "@/components/ui/BrandLogo";
 
 const MONTHS_ES = [
@@ -200,7 +201,7 @@ const Dashboard = () => {
       toast.success(`${t("dashboard.newTable.title")}: "${tableName}"`);
       setIsDialogOpen(false);
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 
@@ -209,7 +210,7 @@ const Dashboard = () => {
       await deleteTableById(tableId);
       toast.success(`${t("dashboard.deleteTable.confirm")}: "${tableName}"`);
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 
@@ -223,11 +224,16 @@ const Dashboard = () => {
       return;
     }
 
+    const previousTable = findPreviousCalendarTable(tables, tableToExport.name);
+    const previousMonthTotal = previousTable
+      ? previousTable.expenses.reduce((sum, exp) => sum + exp.amount, 0)
+      : undefined;
+
     exportTableToPdf({
       tableName: tableToExport.name,
       expenses: tableToExport.expenses,
-      rate,
       language,
+      previousMonthTotal,
     });
 
     toast.success(t("export.pdf.success"));
@@ -261,7 +267,7 @@ const Dashboard = () => {
           : `Added to "${targetTable.name}"`,
       );
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 

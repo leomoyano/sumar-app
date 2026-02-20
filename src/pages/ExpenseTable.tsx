@@ -52,6 +52,7 @@ import ExpensePieChart from "@/components/charts/ExpensePieChart";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import ThemeToggle from "@/components/ThemeToggle";
 import { exportTableToPdf } from "@/lib/exportPdf";
+import { findPreviousCalendarTable } from "@/lib/tablePeriod";
 import { SumarIcon } from "@/components/ui/BrandLogo";
 
 const ExpenseTable = () => {
@@ -107,7 +108,7 @@ const ExpenseTable = () => {
       toast.success(t("expenseForm.submit"));
       setIsDialogOpen(false);
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 
@@ -120,7 +121,7 @@ const ExpenseTable = () => {
       await deleteExpense(tableId, expenseId);
       toast.success(`${t("common.delete")}: "${expenseName}"`);
     } catch (error) {
-      toast.error(t("common.error"));
+      toast.error(t("common.error.generic"));
     }
   };
 
@@ -130,11 +131,16 @@ const ExpenseTable = () => {
       return;
     }
 
+    const previousTable = findPreviousCalendarTable(tables, table.name);
+    const previousMonthTotal = previousTable
+      ? previousTable.expenses.reduce((sum, exp) => sum + exp.amount, 0)
+      : undefined;
+
     exportTableToPdf({
       tableName: table.name,
       expenses: table.expenses,
-      rate,
       language,
+      previousMonthTotal,
     });
 
     toast.success(t("export.pdf.success"));
