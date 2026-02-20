@@ -29,7 +29,16 @@ const MagicBar = ({
     setIsProcessing(true);
     try {
       const result = await parseExpenseWithAI(input);
-      if (result && result.amount > 0) {
+      if (!result) {
+        toast.error(
+          language === "es"
+            ? "Lo siento, estamos teniendo problemas. Intentá de nuevo en un momento."
+            : "Sorry, we're having problems right now. Please try again in a moment.",
+        );
+        return;
+      }
+
+      if (result.amount > 0) {
         onExpenseParsed(result);
         setInput("");
         toast.success(
@@ -47,8 +56,8 @@ const MagicBar = ({
     } catch (error) {
       toast.error(
         language === "es"
-          ? "Hubo un error al procesar tu frase."
-          : "There was an error processing your phrase.",
+          ? "Lo siento, estamos teniendo problemas. Intentá de nuevo en un momento."
+          : "Sorry, we're having problems right now. Please try again in a moment.",
       );
     } finally {
       setIsProcessing(false);
