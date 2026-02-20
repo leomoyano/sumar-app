@@ -83,6 +83,25 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
       ? currentTable.expenses.reduce((sum, exp) => sum + exp.amount, 0)
       : 0;
 
+    const dailyTotals = Array.from({ length: daysElapsed }, () => 0);
+    if (currentTable) {
+      currentTable.expenses.forEach((expense) => {
+        const expenseDate = new Date(expense.createdAt);
+        const isCurrentMonthExpense =
+          expenseDate.getMonth() === currentMonth &&
+          expenseDate.getFullYear() === currentYear;
+
+        if (!isCurrentMonthExpense) return;
+
+        const dayIndex = expenseDate.getDate() - 1;
+        if (dayIndex >= 0 && dayIndex < dailyTotals.length) {
+          dailyTotals[dayIndex] += expense.amount;
+        }
+      });
+    }
+
+    const daysWithExpenses = dailyTotals.filter((dayTotal) => dayTotal > 0).length;
+
     const totalBudget = currentTable?.budget || 0;
     const remaining = totalBudget - totalSpent;
     const percentageUsed =
@@ -90,7 +109,25 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
 
     // 2. Proyección y Estado
     const dailyAvg = totalSpent / (daysElapsed || 1);
-    const projectedTotal = dailyAvg * daysInMonth;
+    const recentWindow = Math.min(7, daysElapsed);
+    const recentSpent = dailyTotals
+      .slice(Math.max(0, dailyTotals.length - recentWindow))
+      .reduce((sum, value) => sum + value, 0);
+    const recentAvg = recentSpent / (recentWindow || 1);
+
+    const blendedDailyAvg =
+      daysElapsed <= 7 ? dailyAvg : dailyAvg * 0.65 + recentAvg * 0.35;
+    const projectedTotal = blendedDailyAvg * daysInMonth;
+
+    const projectionDelta = projectedTotal - totalSpent;
+    const projectedGap = totalBudget > 0 ? projectedTotal - totalBudget : 0;
+
+    const projectionConfidence =
+      daysElapsed < 5 || daysWithExpenses < 3
+        ? "low"
+        : daysElapsed < 12 || daysWithExpenses < 6
+          ? "medium"
+          : "high";
 
     const isExceeded = totalSpent > totalBudget && totalBudget > 0;
     const isRisk =
@@ -103,11 +140,15 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
       remaining,
       percentageUsed,
       projectedTotal,
+      projectionDelta,
+      projectedGap,
+      projectionConfidence,
       isExceeded,
       isRisk,
       isOnTrack,
       daysElapsed,
       daysInMonth,
+      daysWithExpenses,
       hasBudget: totalBudget > 0,
     };
   }, [tables]);
@@ -172,6 +213,30 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
   };
 
   const status = getStatusInfo();
+
+  const getConfidenceLabel = () => {
+    if (currentMonthData.projectionConfidence === "low") {
+      return language === "es" ? "Confianza baja" : "Low confidence";
+    }
+    if (currentMonthData.projectionConfidence === "medium") {
+      return language === "es" ? "Confianza media" : "Medium confidence";
+    }
+    return language === "es" ? "Confianza alta" : "High confidence";
+  };
+
+  const getProjectionMessage = () => {
+    if (!currentMonthData.hasBudget) return "";
+
+    if (currentMonthData.projectedGap > 0) {
+      return language === "es"
+        ? `Con el ritmo actual podrías pasarte por ${formatARS(currentMonthData.projectedGap)}.`
+        : `At this pace you may exceed your budget by ${formatARS(currentMonthData.projectedGap)}.`;
+    }
+
+    return language === "es"
+      ? `Con el ritmo actual podrías cerrar con ${formatARS(Math.abs(currentMonthData.projectedGap))} de margen.`
+      : `At this pace you may finish with ${formatARS(Math.abs(currentMonthData.projectedGap))} remaining.`;
+  };
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg bg-card">
@@ -269,6 +334,14 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
                 ({language === "es" ? "est. total" : "est. total"})
               </span>
             </div>
+            <p className="text-xs text-muted-foreground">
+              {getConfidenceLabel()} · {language === "es" ? `${currentMonthData.daysWithExpenses} días con gastos` : `${currentMonthData.daysWithExpenses} spending days`}
+            </p>
+            <p
+              className={`text-xs ${currentMonthData.projectedGap > 0 ? "text-destructive" : "text-emerald-600"}`}
+            >
+              {getProjectionMessage()}
+            </p>
           </div>
 
           <Link to="/budgets">
