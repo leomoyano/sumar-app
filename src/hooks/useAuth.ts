@@ -170,15 +170,25 @@ export const useAuth = () => {
     email: string,
     password: string,
     name: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+    preferredCurrency: "ARS" | "USD" = "ARS",
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    requiresEmailVerification?: boolean;
+  }> => {
     try {
       setIsLoading(true);
+
+      const authRedirectUrl = import.meta.env.VITE_AUTH_REDIRECT_URL as
+        | string
+        | undefined;
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
-          data: { name },
+          data: { name, preferredCurrency },
+          ...(authRedirectUrl ? { emailRedirectTo: authRedirectUrl } : {}),
         },
       });
 
@@ -191,8 +201,10 @@ export const useAuth = () => {
         handleUser(data.user);
       }
 
+      const requiresEmailVerification = !data.session;
+
       setIsLoading(false);
-      return { success: true };
+      return { success: true, requiresEmailVerification };
     } catch (err) {
       setIsLoading(false);
       return { success: false, error: "Error inesperado al registrarse" };

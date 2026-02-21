@@ -2,9 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -23,12 +31,14 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, register, isAuthenticated, isLoading } = useAuthContext();
   const { t } = useLanguage();
+  const { setCurrency } = useCurrency();
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [registerData, setRegisterData] = useState({
     email: "",
     password: "",
     name: "",
+    currency: "ARS" as "ARS" | "USD",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,8 +57,22 @@ const Login = () => {
       return t("common.error.invalidCredentials");
     }
 
+    if (
+      normalized.includes("email address") &&
+      normalized.includes("invalid")
+    ) {
+      return t("common.error.invalidEmail");
+    }
+
     if (normalized.includes("already registered") || normalized.includes("already been registered")) {
       return t("common.error.emailAlreadyRegistered");
+    }
+
+    if (
+      normalized.includes("redirect") &&
+      (normalized.includes("not allowed") || normalized.includes("invalid"))
+    ) {
+      return t("common.error.authRedirectInvalid");
     }
 
     return type === "login"
@@ -93,14 +117,24 @@ const Login = () => {
       registerData.email,
       registerData.password,
       registerData.name,
+      registerData.currency,
     );
 
     if (result.success) {
-      toast.success(t("dashboard.welcome") + "!");
-      // Redirigir explícitamente para mayor seguridad
-      navigate("/dashboard", { replace: true });
+      setCurrency(registerData.currency);
+      if (result.requiresEmailVerification) {
+        toast.success(t("common.auth.verifyEmail"));
+      } else {
+        toast.success(t("dashboard.welcome") + "!");
+        // Redirigir explícitamente para mayor seguridad
+        navigate("/dashboard", { replace: true });
+      }
     } else {
       toast.error(getFriendlyAuthError(result.error, "register"));
+      setIsSubmitting(false);
+    }
+
+    if (result.success) {
       setIsSubmitting(false);
     }
   };
@@ -292,6 +326,28 @@ const Login = () => {
                         }
                         required
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-currency">
+                        {t("login.currency")}
+                      </Label>
+                      <Select
+                        value={registerData.currency}
+                        onValueChange={(value: "ARS" | "USD") =>
+                          setRegisterData({
+                            ...registerData,
+                            currency: value,
+                          })
+                        }
+                      >
+                        <SelectTrigger id="register-currency">
+                          <SelectValue placeholder={t("login.currency.placeholder")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ARS">Peso Argentino (ARS)</SelectItem>
+                          <SelectItem value="USD">US Dollar (USD)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="register-email">{t("login.email")}</Label>
