@@ -22,15 +22,16 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Wallet, TrendingUp, Shield } from "lucide-react";
+import { Wallet, TrendingUp, Shield, Eye, EyeOff } from "lucide-react";
 import { SumarLogo } from "@/components/ui/BrandLogo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, register, isAuthenticated, isLoading } = useAuthContext();
-  const { t } = useLanguage();
+  const { login, register, requestPasswordReset, isAuthenticated, isLoading } =
+    useAuthContext();
+  const { t, language } = useLanguage();
   const { setCurrency } = useCurrency();
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -41,6 +42,11 @@ const Login = () => {
     currency: "ARS" as "ARS" | "USD",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const getFriendlyAuthError = (error: string | undefined, type: "login" | "register") => {
     if (!error) {
@@ -137,6 +143,27 @@ const Login = () => {
     if (result.success) {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!resetEmail) return;
+
+    setIsSendingReset(true);
+    const result = await requestPasswordReset(resetEmail);
+
+    if (result.success) {
+      toast.success(
+        language === "es"
+          ? "Te enviamos un email para restablecer tu contraseña"
+          : "We sent you an email to reset your password",
+      );
+      setShowForgotPassword(false);
+      setResetEmail("");
+    } else {
+      toast.error(result.error || t("common.error.generic"));
+    }
+
+    setIsSendingReset(false);
   };
 
   return (
@@ -283,19 +310,44 @@ const Login = () => {
                       <Label htmlFor="login-password">
                         {t("login.password")}
                       </Label>
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder={t("login.password.placeholder")}
-                        value={loginData.password}
-                        onChange={(e) =>
-                          setLoginData({
-                            ...loginData,
-                            password: e.target.value,
-                          })
-                        }
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          id="login-password"
+                          type={showLoginPassword ? "text" : "password"}
+                          placeholder={t("login.password.placeholder")}
+                          value={loginData.password}
+                          onChange={(e) =>
+                            setLoginData({
+                              ...loginData,
+                              password: e.target.value,
+                            })
+                          }
+                          className="pr-10"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onClick={() => setShowLoginPassword((prev) => !prev)}
+                          aria-label={
+                            showLoginPassword
+                              ? language === "es"
+                                ? "Ocultar contraseña"
+                                : "Hide password"
+                              : language === "es"
+                                ? "Mostrar contraseña"
+                                : "Show password"
+                          }
+                        >
+                          {showLoginPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <Button
                       type="submit"
@@ -306,6 +358,60 @@ const Login = () => {
                         ? t("login.loading")
                         : t("login.button.login")}
                     </Button>
+
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword((prev) => !prev)}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        {language === "es"
+                          ? "¿Olvidaste tu contraseña?"
+                          : "Forgot your password?"}
+                      </button>
+
+                      {showForgotPassword && (
+                        <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
+                          <p className="text-xs text-muted-foreground">
+                            {language === "es"
+                              ? "Ingresá tu email y te enviamos un enlace para restablecerla."
+                              : "Enter your email and we will send you a reset link."}
+                          </p>
+                          <div className="space-y-2">
+                            <Input
+                              type="email"
+                              placeholder={t("login.email.placeholder")}
+                              value={resetEmail}
+                              onChange={(e) => setResetEmail(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  void handlePasswordReset();
+                                }
+                              }}
+                              required
+                            />
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              className="w-full"
+                              disabled={isSendingReset}
+                              onClick={() => {
+                                void handlePasswordReset();
+                              }}
+                            >
+                              {isSendingReset
+                                ? language === "es"
+                                  ? "Enviando..."
+                                  : "Sending..."
+                                : language === "es"
+                                  ? "Enviar enlace"
+                                  : "Send link"}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </form>
                 </TabsContent>
 
@@ -369,19 +475,44 @@ const Login = () => {
                       <Label htmlFor="register-password">
                         {t("login.password")}
                       </Label>
-                      <Input
-                        id="register-password"
-                        type="password"
-                        placeholder={t("login.password.placeholder")}
-                        value={registerData.password}
-                        onChange={(e) =>
-                          setRegisterData({
-                            ...registerData,
-                            password: e.target.value,
-                          })
-                        }
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          id="register-password"
+                          type={showRegisterPassword ? "text" : "password"}
+                          placeholder={t("login.password.placeholder")}
+                          value={registerData.password}
+                          onChange={(e) =>
+                            setRegisterData({
+                              ...registerData,
+                              password: e.target.value,
+                            })
+                          }
+                          className="pr-10"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onClick={() => setShowRegisterPassword((prev) => !prev)}
+                          aria-label={
+                            showRegisterPassword
+                              ? language === "es"
+                                ? "Ocultar contraseña"
+                                : "Hide password"
+                              : language === "es"
+                                ? "Mostrar contraseña"
+                                : "Show password"
+                          }
+                        >
+                          {showRegisterPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <Button
                       type="submit"

@@ -15,6 +15,7 @@ import Budgets from "./pages/Budgets";
 import Subscriptions from "./pages/Subscriptions";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const AppRoutes = () => (
         </PublicRoute>
       }
     />
+    <Route path="/reset-password" element={<ResetPassword />} />
     <Route
       path="/dashboard"
       element={

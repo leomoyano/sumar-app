@@ -216,6 +216,49 @@ export const useAuth = () => {
     setUser(null);
   };
 
+  const requestPasswordReset = async (
+    email: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const resetRedirectUrl =
+        (import.meta.env.VITE_PASSWORD_RESET_REDIRECT_URL as string | undefined) ||
+        `${window.location.origin}/reset-password`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: resetRedirectUrl,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: "Error inesperado al solicitar recuperación",
+      };
+    }
+  };
+
+  const updatePassword = async (
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch {
+      return { success: false, error: "Error inesperado al actualizar contraseña" };
+    }
+  };
+
   return {
     user,
     isAuthenticated: !!user,
@@ -223,5 +266,7 @@ export const useAuth = () => {
     login,
     register,
     logout,
+    requestPasswordReset,
+    updatePassword,
   };
 };
