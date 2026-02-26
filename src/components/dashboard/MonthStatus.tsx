@@ -109,6 +109,7 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
 
     // 2. Proyección y Estado
     const dailyAvg = totalSpent / (daysElapsed || 1);
+    const remainingDays = Math.max(daysInMonth - daysElapsed, 0);
     const recentWindow = Math.min(7, daysElapsed);
     const recentSpent = dailyTotals
       .slice(Math.max(0, dailyTotals.length - recentWindow))
@@ -117,7 +118,10 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
 
     const blendedDailyAvg =
       daysElapsed <= 7 ? dailyAvg : dailyAvg * 0.65 + recentAvg * 0.35;
-    const projectedTotal = blendedDailyAvg * daysInMonth;
+    const projectedTotal = Math.max(
+      totalSpent + blendedDailyAvg * remainingDays,
+      totalSpent,
+    );
 
     const projectionDelta = projectedTotal - totalSpent;
     const projectedGap = totalBudget > 0 ? projectedTotal - totalBudget : 0;
@@ -226,6 +230,13 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
 
   const getProjectionMessage = () => {
     if (!currentMonthData.hasBudget) return "";
+
+    if (currentMonthData.isExceeded) {
+      const currentOver = currentMonthData.totalSpent - currentMonthData.totalBudget;
+      return language === "es"
+        ? `Ya te pasaste por ${formatARS(currentOver)}. Si seguís así, cerrarías el mes pasándote por ${formatARS(currentMonthData.projectedGap)}.`
+        : `You are already over budget by ${formatARS(currentOver)}. At this pace, you may finish the month over by ${formatARS(currentMonthData.projectedGap)}.`;
+    }
 
     if (currentMonthData.projectedGap > 0) {
       return language === "es"
