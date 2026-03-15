@@ -63,6 +63,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import ThemeToggle from "@/components/ThemeToggle";
 import UserMenu from "@/components/UserMenu";
 import MonthStatus from "@/components/dashboard/MonthStatus";
+import UpcomingFixedExpenses from "@/components/dashboard/UpcomingFixedExpenses";
 import MagicBar from "@/components/dashboard/MagicBar";
 import ForgottenExpensesAlert from "@/components/dashboard/ForgottenExpensesAlert";
 import { exportTableToPdf } from "@/lib/exportPdf";
@@ -103,7 +104,7 @@ const Dashboard = () => {
   const { t, language } = useLanguage();
   const { tables, createTable, deleteTableById, addExpense, isLoading } =
     useTables(user?.id);
-  const { fixedExpenses, getActiveExpenses } = useFixedExpenses(user?.id);
+  const { fixedExpenses, getActiveExpenses, markAsPaid } = useFixedExpenses(user?.id);
   const {
     rate,
     dollarInfo,
@@ -271,6 +272,15 @@ const Dashboard = () => {
     }
   };
 
+  const handleMarkFixedExpensePaid = async (id: string) => {
+    try {
+      await markAsPaid(id);
+      toast.success(language === "es" ? "Gasto fijo marcado como pagado" : "Fixed expense marked as paid");
+    } catch (error) {
+      toast.error(t("common.error.generic"));
+    }
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -326,6 +336,11 @@ const Dashboard = () => {
 
         {/* Main Status Hero */}
         <MonthStatus userId={user?.id} />
+
+        <UpcomingFixedExpenses
+          expenses={fixedExpenses}
+          onMarkPaid={handleMarkFixedExpensePaid}
+        />
 
         {/* Alerta de Gastos Olvidados (AI) */}
         <ForgottenExpensesAlert tables={tables} />

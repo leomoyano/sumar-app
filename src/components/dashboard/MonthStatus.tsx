@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBudgets } from "@/hooks/useBudgets";
-import { useTables, MonthlyTable } from "@/hooks/useTables";
+import { useTables } from "@/hooks/useTables";
 import { formatARS } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ interface MonthStatusProps {
 }
 
 const MonthStatus = ({ userId }: MonthStatusProps) => {
-  const { t, language } = useLanguage();
-  const { getTotalBudget, isLoading: isLoadingBudgets } = useBudgets(userId);
+  const { language } = useLanguage();
+  const { isLoading: isLoadingBudgets } = useBudgets(userId);
   const { tables, isLoading: isLoadingTables } = useTables(userId);
 
   // 1. Lógica para identificar "éste mes"
@@ -79,20 +79,22 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
       return hasYear && hasMonth;
     });
 
-    const totalSpent = currentTable
-      ? currentTable.expenses.reduce((sum, exp) => sum + exp.amount, 0)
-      : 0;
+    const monthExpenses = currentTable
+      ? currentTable.expenses.filter((expense) => {
+          const expenseDate = new Date(expense.createdAt);
+          return (
+            expenseDate.getMonth() === currentMonth &&
+            expenseDate.getFullYear() === currentYear
+          );
+        })
+      : [];
+
+    const totalSpent = monthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
     const dailyTotals = Array.from({ length: daysElapsed }, () => 0);
     if (currentTable) {
-      currentTable.expenses.forEach((expense) => {
+      monthExpenses.forEach((expense) => {
         const expenseDate = new Date(expense.createdAt);
-        const isCurrentMonthExpense =
-          expenseDate.getMonth() === currentMonth &&
-          expenseDate.getFullYear() === currentYear;
-
-        if (!isCurrentMonthExpense) return;
-
         const dayIndex = expenseDate.getDate() - 1;
         if (dayIndex >= 0 && dayIndex < dailyTotals.length) {
           dailyTotals[dayIndex] += expense.amount;
@@ -107,35 +109,29 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
     const percentageUsed =
       totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
-    // 2. Proyección y Estado
-    const dailyAvg = totalSpent / (daysElapsed || 1);
-    const remainingDays = Math.max(daysInMonth - daysElapsed, 0);
-    const recentWindow = Math.min(7, daysElapsed);
-    const recentSpent = dailyTotals
-      .slice(Math.max(0, dailyTotals.length - recentWindow))
-      .reduce((sum, value) => sum + value, 0);
-    const recentAvg = recentSpent / (recentWindow || 1);
+    const expectedSpentToDate = totalBudget * (daysElapsed / daysInMonth);
+    const deviationVsPlan = totalSpent - expectedSpentToDate;
 
-    const blendedDailyAvg =
-      daysElapsed <= 7 ? dailyAvg : dailyAvg * 0.65 + recentAvg * 0.35;
-    const projectedTotal = Math.max(
-      totalSpent + blendedDailyAvg * remainingDays,
-      totalSpent,
+    const categoryTotals = monthExpenses.reduce<Record<string, number>>(
+      (acc, expense) => {
+        const category = expense.tags[0]?.trim() || "";
+        acc[category] = (acc[category] || 0) + expense.amount;
+        return acc;
+      },
+      {},
     );
 
-    const projectionDelta = projectedTotal - totalSpent;
-    const projectedGap = totalBudget > 0 ? projectedTotal - totalBudget : 0;
-
-    const projectionConfidence =
-      daysElapsed < 5 || daysWithExpenses < 3
-        ? "low"
-        : daysElapsed < 12 || daysWithExpenses < 6
-          ? "medium"
-          : "high";
+    const topCategories = Object.entries(categoryTotals)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([category, amount]) => ({
+        category,
+        amount,
+        percentage: totalSpent > 0 ? (amount / totalSpent) * 100 : 0,
+      }));
 
     const isExceeded = totalSpent > totalBudget && totalBudget > 0;
-    const isRisk =
-      projectedTotal > totalBudget && !isExceeded && totalBudget > 0;
+    const isRisk = !isExceeded && deviationVsPlan > 0 && totalBudget > 0;
     const isOnTrack = !isExceeded && !isRisk && totalBudget > 0;
 
     return {
@@ -143,10 +139,9 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
       totalSpent,
       remaining,
       percentageUsed,
-      projectedTotal,
-      projectionDelta,
-      projectedGap,
-      projectionConfidence,
+      expectedSpentToDate,
+      deviationVsPlan,
+      topCategories,
       isExceeded,
       isRisk,
       isOnTrack,
@@ -218,36 +213,24 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
 
   const status = getStatusInfo();
 
-  const getConfidenceLabel = () => {
-    if (currentMonthData.projectionConfidence === "low") {
-      return language === "es" ? "Confianza baja" : "Low confidence";
-    }
-    if (currentMonthData.projectionConfidence === "medium") {
-      return language === "es" ? "Confianza media" : "Medium confidence";
-    }
-    return language === "es" ? "Confianza alta" : "High confidence";
+  const getCategoryLabel = (category: string) => {
+    if (category) return category;
+    return language === "es" ? "Sin categoría" : "Uncategorized";
   };
 
-  const getProjectionMessage = () => {
-    if (!currentMonthData.hasBudget) return "";
-
-    if (currentMonthData.isExceeded) {
-      const currentOver = currentMonthData.totalSpent - currentMonthData.totalBudget;
-      return language === "es"
-        ? `Ya te pasaste por ${formatARS(currentOver)}. Si seguís así, cerrarías el mes pasándote por ${formatARS(currentMonthData.projectedGap)}.`
-        : `You are already over budget by ${formatARS(currentOver)}. At this pace, you may finish the month over by ${formatARS(currentMonthData.projectedGap)}.`;
-    }
-
-    if (currentMonthData.projectedGap > 0) {
-      return language === "es"
-        ? `Con el ritmo actual podrías pasarte por ${formatARS(currentMonthData.projectedGap)}.`
-        : `At this pace you may exceed your budget by ${formatARS(currentMonthData.projectedGap)}.`;
-    }
-
-    return language === "es"
-      ? `Con el ritmo actual podrías cerrar con ${formatARS(Math.abs(currentMonthData.projectedGap))} de margen.`
-      : `At this pace you may finish with ${formatARS(Math.abs(currentMonthData.projectedGap))} remaining.`;
-  };
+  const absDeviation = Math.abs(currentMonthData.deviationVsPlan);
+  const deviationTrend =
+    currentMonthData.deviationVsPlan > 0
+      ? "above"
+      : currentMonthData.deviationVsPlan < 0
+        ? "below"
+        : "ontrack";
+  const deviationScale = Math.max(
+    (currentMonthData.totalBudget / currentMonthData.daysInMonth) * 7,
+    1,
+  );
+  const deviationBarPercent = Math.min((absDeviation / deviationScale) * 50, 50);
+  const topCategoryAmount = currentMonthData.topCategories[0]?.amount || 0;
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg bg-card">
@@ -329,38 +312,124 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
           </div>
         </div>
 
-        {/* Projection Footer */}
-        <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground uppercase font-medium tracking-wider">
-              {language === "es"
-                ? "Proyección fin de mes"
-                : "End of month forecast"}
-            </p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-lg font-bold tabular-nums">
-                {formatARS(currentMonthData.projectedTotal)}
+        <div className="pt-4 border-t space-y-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="rounded-xl border bg-muted/20 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">
+                  {language === "es" ? "Desvío vs plan" : "Deviation vs plan"}
+                </p>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${deviationTrend === "above" ? "bg-destructive/10 text-destructive" : deviationTrend === "below" ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"}`}
+                >
+                  {deviationTrend === "above"
+                    ? language === "es"
+                      ? "Arriba del plan"
+                      : "Above plan"
+                    : deviationTrend === "below"
+                      ? language === "es"
+                        ? "Debajo del plan"
+                        : "Below plan"
+                      : language === "es"
+                        ? "En plan"
+                        : "On plan"}
+                </span>
+              </div>
+
+              <div className="flex items-baseline gap-2">
+                <p
+                  className={`text-2xl font-bold tabular-nums ${deviationTrend === "above" ? "text-destructive" : deviationTrend === "below" ? "text-emerald-600" : "text-foreground"}`}
+                >
+                  {deviationTrend === "above"
+                    ? "+"
+                    : deviationTrend === "below"
+                      ? "-"
+                      : ""}
+                  {formatARS(absDeviation)}
+                </p>
+                <span className="text-xs text-muted-foreground">
+                  {language === "es"
+                    ? `al día ${currentMonthData.daysElapsed}`
+                    : `by day ${currentMonthData.daysElapsed}`}
+                </span>
+              </div>
+
+              <div className="relative h-2 rounded-full overflow-hidden bg-muted/60">
+                <div className="absolute inset-y-0 left-0 w-1/2 bg-emerald-500/25" />
+                <div className="absolute inset-y-0 right-0 w-1/2 bg-destructive/25" />
+                <div className="absolute inset-y-0 left-1/2 w-px bg-border" />
+                {deviationTrend === "above" && (
+                  <div
+                    className="absolute inset-y-0 left-1/2 bg-destructive"
+                    style={{ width: `${deviationBarPercent}%` }}
+                  />
+                )}
+                {deviationTrend === "below" && (
+                  <div
+                    className="absolute inset-y-0 right-1/2 bg-emerald-600"
+                    style={{ width: `${deviationBarPercent}%` }}
+                  />
+                )}
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                {language === "es"
+                  ? `Esperado al día ${currentMonthData.daysElapsed}: ${formatARS(currentMonthData.expectedSpentToDate)}`
+                  : `Expected by day ${currentMonthData.daysElapsed}: ${formatARS(currentMonthData.expectedSpentToDate)}`}
               </p>
-              <span className="text-xs text-muted-foreground">
-                ({language === "es" ? "est. total" : "est. total"})
-              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {getConfidenceLabel()} · {language === "es" ? `${currentMonthData.daysWithExpenses} días con gastos` : `${currentMonthData.daysWithExpenses} spending days`}
-            </p>
-            <p
-              className={`text-xs ${currentMonthData.projectedGap > 0 ? "text-destructive" : "text-emerald-600"}`}
-            >
-              {getProjectionMessage()}
-            </p>
+
+            <div className="rounded-xl border bg-muted/20 p-3 space-y-2">
+              <p className="text-[11px] text-muted-foreground uppercase font-semibold tracking-wider">
+                {language === "es" ? "Top 3 categorías" : "Top 3 categories"}
+              </p>
+              {currentMonthData.topCategories.length > 0 ? (
+                <div className="space-y-2">
+                  {currentMonthData.topCategories.map((item, index) => (
+                    <div
+                      key={item.category || "uncategorized"}
+                      className="space-y-1"
+                    >
+                      <div className="flex items-center justify-between gap-4 text-xs">
+                        <span className="text-foreground/90 truncate flex items-center gap-2 min-w-0">
+                          <span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground shrink-0">
+                            {index + 1}
+                          </span>
+                          <span className="truncate">{getCategoryLabel(item.category)}</span>
+                        </span>
+                        <span className="text-muted-foreground tabular-nums whitespace-nowrap">
+                          {formatARS(item.amount)} ({Math.round(item.percentage)}%)
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary/70"
+                          style={{
+                            width: `${topCategoryAmount > 0 ? (item.amount / topCategoryAmount) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {language === "es"
+                    ? "Todavía no hay gastos para mostrar categorías."
+                    : "There are no expenses yet to show categories."}
+                </p>
+              )}
+            </div>
           </div>
 
-          <Link to="/budgets">
-            <Button variant="ghost" size="sm" className="text-xs gap-1 h-8">
-              {language === "es" ? "Ver detalles" : "View details"}
-              <ArrowRight className="h-3 w-3" />
-            </Button>
-          </Link>
+          <div className="flex justify-end">
+            <Link to="/budgets">
+              <Button variant="ghost" size="sm" className="text-xs gap-1 h-8">
+                {language === "es" ? "Ver detalles" : "View details"}
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>
