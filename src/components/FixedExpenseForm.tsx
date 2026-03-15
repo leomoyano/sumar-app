@@ -13,12 +13,23 @@ import { toast } from 'sonner';
 interface FixedExpenseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (expense: { name: string; amount: number; tags: string[]; isActive: boolean }) => Promise<void>;
+  onSubmit: (expense: {
+    name: string;
+    amount: number;
+    tags: string[];
+    dueDay: number;
+    billingCycle: 'monthly';
+    isActive: boolean;
+    lastPaidAt: string | null;
+  }) => Promise<void>;
   initialData?: {
     name: string;
     amount: number;
     tags: string[];
+    dueDay: number;
+    billingCycle: 'monthly';
     isActive: boolean;
+    lastPaidAt: string | null;
   };
   mode: 'create' | 'edit';
 }
@@ -30,6 +41,7 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
   
   const [name, setName] = useState(initialData?.name || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
+  const [dueDay, setDueDay] = useState(initialData?.dueDay?.toString() || '1');
   const [selectedCategory, setSelectedCategory] = useState<string>(initialData?.tags?.[0] || '');
   const [newCategory, setNewCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,6 +51,7 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
   useEffect(() => {
     setName(initialData?.name || '');
     setAmount(initialData?.amount?.toString() || '');
+    setDueDay(initialData?.dueDay?.toString() || '1');
     setSelectedCategory(initialData?.tags?.[0] || '');
   }, [initialData]);
 
@@ -48,17 +61,27 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
       return;
     }
 
+    const parsedDueDay = parseInt(dueDay, 10);
+    if (Number.isNaN(parsedDueDay) || parsedDueDay < 1 || parsedDueDay > 31) {
+      toast.error(language === 'es' ? 'El vencimiento debe estar entre 1 y 31.' : 'Due day must be between 1 and 31.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await onSubmit({
         name: name.trim(),
         amount: parseFloat(amount),
         tags: selectedCategory ? [selectedCategory] : [],
+        dueDay: parsedDueDay,
+        billingCycle: 'monthly',
         isActive: initialData?.isActive ?? true,
+        lastPaidAt: initialData?.lastPaidAt ?? null,
       });
       
       setName('');
       setAmount('');
+      setDueDay('1');
       setSelectedCategory('');
       onOpenChange(false);
     } catch (error) {
@@ -129,6 +152,19 @@ const FixedExpenseForm = ({ open, onOpenChange, onSubmit, initialData, mode }: F
               placeholder="0.00"
               min="0"
               step="0.01"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>{language === 'es' ? 'Día de vencimiento (mensual)' : 'Due day (monthly)'}</Label>
+            <Input
+              type="number"
+              value={dueDay}
+              onChange={(e) => setDueDay(e.target.value)}
+              placeholder="1"
+              min="1"
+              max="31"
+              step="1"
             />
           </div>
           

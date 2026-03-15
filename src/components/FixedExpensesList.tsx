@@ -49,7 +49,12 @@ const FixedExpensesList = ({ expenses, onToggleActive, onEdit, onDelete }: Fixed
 
   return (
     <div className="space-y-3">
-      {expenses.map(expense => (
+      {expenses.map(expense => {
+        const safeDueDay = Number.isFinite(expense.dueDay)
+          ? Math.min(31, Math.max(1, Math.round(expense.dueDay)))
+          : 1;
+
+        return (
         <Card key={expense.id} className={`transition-opacity ${!expense.isActive ? 'opacity-60' : ''}`}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-4">
@@ -71,6 +76,11 @@ const FixedExpensesList = ({ expenses, onToggleActive, onEdit, onDelete }: Fixed
                     ))}
                   </div>
                 )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'es'
+                    ? `Vence el día ${safeDueDay} de cada mes`
+                    : `Due on day ${safeDueDay} each month`}
+                </p>
               </div>
               
               <div className="flex items-center gap-2">
@@ -130,7 +140,8 @@ const FixedExpensesList = ({ expenses, onToggleActive, onEdit, onDelete }: Fixed
             </div>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
     </div>
   );
 };

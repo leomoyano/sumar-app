@@ -1,12 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+const normalizeDueDay = (value: unknown): number => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 1;
+  const rounded = Math.round(parsed);
+  return Math.min(31, Math.max(1, rounded));
+};
+
 export interface FixedExpense {
   id: string;
   name: string;
   amount: number;
   tags: string[];
+  dueDay: number;
+  billingCycle: 'monthly';
   isActive: boolean;
+  lastPaidAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,7 +46,10 @@ export const useFixedExpenses = (userId: string | undefined) => {
         name: item.name,
         amount: Number(item.amount),
         tags: item.tags || [],
+        dueDay: normalizeDueDay(item.due_day),
+        billingCycle: 'monthly',
         isActive: item.is_active,
+        lastPaidAt: item.last_paid_at,
         createdAt: item.created_at,
         updatedAt: item.updated_at,
       }));
@@ -65,7 +78,10 @@ export const useFixedExpenses = (userId: string | undefined) => {
         name: expense.name,
         amount: expense.amount,
         tags: expense.tags,
+        due_day: expense.dueDay,
+        billing_cycle: expense.billingCycle,
         is_active: expense.isActive,
+        last_paid_at: expense.lastPaidAt,
       })
       .select()
       .single();
@@ -80,7 +96,10 @@ export const useFixedExpenses = (userId: string | undefined) => {
       name: data.name,
       amount: Number(data.amount),
       tags: data.tags || [],
+      dueDay: normalizeDueDay(data.due_day),
+      billingCycle: 'monthly',
       isActive: data.is_active,
+      lastPaidAt: data.last_paid_at,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
     };
@@ -97,7 +116,10 @@ export const useFixedExpenses = (userId: string | undefined) => {
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.amount !== undefined) updateData.amount = updates.amount;
     if (updates.tags !== undefined) updateData.tags = updates.tags;
+    if (updates.dueDay !== undefined) updateData.due_day = updates.dueDay;
+    if (updates.billingCycle !== undefined) updateData.billing_cycle = updates.billingCycle;
     if (updates.isActive !== undefined) updateData.is_active = updates.isActive;
+    if (updates.lastPaidAt !== undefined) updateData.last_paid_at = updates.lastPaidAt;
 
     const { error } = await supabase
       .from('fixed_expenses')
@@ -141,6 +163,10 @@ export const useFixedExpenses = (userId: string | undefined) => {
     return fixedExpenses.filter(exp => exp.isActive);
   }, [fixedExpenses]);
 
+  const markAsPaid = useCallback(async (id: string) => {
+    await updateFixedExpense(id, { lastPaidAt: new Date().toISOString() });
+  }, [updateFixedExpense]);
+
   return {
     fixedExpenses,
     isLoading,
@@ -149,6 +175,7 @@ export const useFixedExpenses = (userId: string | undefined) => {
     deleteFixedExpense,
     toggleActive,
     getActiveExpenses,
+    markAsPaid,
     refreshFixedExpenses: loadFixedExpenses,
   };
 };

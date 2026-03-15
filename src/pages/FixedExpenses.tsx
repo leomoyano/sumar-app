@@ -28,7 +28,15 @@ const FixedExpensesPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<FixedExpense | null>(null);
 
-  const handleAdd = async (expense: { name: string; amount: number; tags: string[]; isActive: boolean }) => {
+  const handleAdd = async (expense: {
+    name: string;
+    amount: number;
+    tags: string[];
+    dueDay: number;
+    billingCycle: 'monthly';
+    isActive: boolean;
+    lastPaidAt: string | null;
+  }) => {
     try {
       await addFixedExpense(expense);
       toast.success(language === 'es' ? 'Gasto fijo agregado' : 'Fixed expense added');
@@ -37,7 +45,15 @@ const FixedExpensesPage = () => {
     }
   };
 
-  const handleEdit = async (expense: { name: string; amount: number; tags: string[]; isActive: boolean }) => {
+  const handleEdit = async (expense: {
+    name: string;
+    amount: number;
+    tags: string[];
+    dueDay: number;
+    billingCycle: 'monthly';
+    isActive: boolean;
+    lastPaidAt: string | null;
+  }) => {
     if (!editingExpense) return;
     try {
       await updateFixedExpense(editingExpense.id, expense);
