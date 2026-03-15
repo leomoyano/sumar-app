@@ -88,9 +88,12 @@ export type Database = {
       fixed_expenses: {
         Row: {
           amount: number
+          billing_cycle: string
           created_at: string
+          due_day: number
           id: string
           is_active: boolean
+          last_paid_at: string | null
           name: string
           tags: string[] | null
           updated_at: string
@@ -98,9 +101,12 @@ export type Database = {
         }
         Insert: {
           amount: number
+          billing_cycle?: string
           created_at?: string
+          due_day?: number
           id?: string
           is_active?: boolean
+          last_paid_at?: string | null
           name: string
           tags?: string[] | null
           updated_at?: string
@@ -108,9 +114,12 @@ export type Database = {
         }
         Update: {
           amount?: number
+          billing_cycle?: string
           created_at?: string
+          due_day?: number
           id?: string
           is_active?: boolean
+          last_paid_at?: string | null
           name?: string
           tags?: string[] | null
           updated_at?: string
