@@ -58,6 +58,7 @@ import {
   FileDown,
   ArrowRight,
   Target,
+  Landmark,
 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -410,6 +411,13 @@ const Dashboard = () => {
             <Button variant="outline" className="gap-2 w-full sm:w-auto">
               <DollarSign className="h-4 w-4" />
               {language === "es" ? "Mercado" : "Market"}
+            </Button>
+          </Link>
+
+          <Link to="/arca">
+            <Button variant="outline" className="gap-2 w-full sm:w-auto">
+              <Landmark className="h-4 w-4" />
+              ARCA
             </Button>
           </Link>
 

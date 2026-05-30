@@ -13,6 +13,7 @@ import ExpenseTable from "./pages/ExpenseTable";
 import FixedExpenses from "./pages/FixedExpenses";
 import Budgets from "./pages/Budgets";
 import Market from "./pages/Market";
+import Arca from "./pages/Arca";
 import Subscriptions from "./pages/Subscriptions";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -108,6 +109,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Market />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/arca"
+      element={
+        <ProtectedRoute>
+          <Arca />
         </ProtectedRoute>
       }
     />
