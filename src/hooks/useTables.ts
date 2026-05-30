@@ -259,7 +259,7 @@ export const useTables = (userId: string | undefined) => {
   const updateTableBudget = useCallback(async (tableId: string, budget: number) => {
     const { error } = await supabase
       .from('monthly_tables')
-      .update({ budget } as unknown as { budget: number })
+      .update({ budget })
       .eq('id', tableId);
 
     if (error) {
@@ -282,7 +282,7 @@ export const useTables = (userId: string | undefined) => {
     addExpense,
     updateExpense,
     deleteExpense,
-    updateTableBudget, // Exportar nueva función
+    updateTableBudget,
     refreshTables: loadTables,
   };
 };
