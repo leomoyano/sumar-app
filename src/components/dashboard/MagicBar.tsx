@@ -66,10 +66,10 @@ const MagicBar = ({
 
   return (
     <div className="relative group">
-      <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/15 via-primary/5 to-primary/15 opacity-0 blur transition-opacity duration-200 group-within:opacity-50"></div>
       <div className="relative flex items-center gap-2 p-1 bg-card border rounded-2xl shadow-sm">
         <div className="flex items-center justify-center pl-3">
-          <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+          <Sparkles className="h-5 w-5 text-primary" />
         </div>
         <Input
           placeholder={
