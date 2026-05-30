@@ -87,24 +87,6 @@ Notas:
 - La UI actual modela la recurrencia solamente como mensual.
 - Se usan al momento de crear una nueva tabla mensual para precargar gastos.
 
-### `budgets`
-
-Presupuestos por categoría.
-
-Campos relevantes:
-
-- `id`
-- `user_id`
-- `category`
-- `amount`
-- `created_at`, `updated_at`
-
-Constraints relevantes:
-
-- `amount > 0`
-- `UNIQUE (user_id, category)`
-- longitud de categoría entre 1 y 50
-
 ## Relaciones
 
 | Origen | Relación | Destino |
@@ -114,7 +96,6 @@ Constraints relevantes:
 | `expenses.user_id` | N:1 | `auth.users.id` |
 | `expenses.table_id` | N:1 | `monthly_tables.id` |
 | `fixed_expenses.user_id` | N:1 | `auth.users.id` |
-| `budgets.user_id` | N:1 | `auth.users.id` |
 
 ## Seguridad
 
@@ -128,14 +109,16 @@ Todas las entidades principales habilitan **Row Level Security** y filtran por `
 | `20260110204743_*.sql` | `monthly_tables`, `expenses`, RLS inicial e índices. |
 | `20260115185247_*.sql` | `profiles.tags` y eliminación de `tags` table. |
 | `20260202151952_*.sql` | `fixed_expenses`. |
-| `20260207034055_*.sql` | `budgets`. |
+| `20260207034055_*.sql` | `budgets` legacy por categoría. |
 | `20260211024500_*.sql` | `monthly_tables.budget`. |
 | `20260309193000_*.sql` | `fixed_expenses.due_day`, `billing_cycle`, `last_paid_at`. |
+| `20260530013000_*.sql` | elimina `budgets` para dejar un único presupuesto mensual en `monthly_tables.budget`. |
 
 ## Observaciones de diseño
 
 - La categoría principal de un gasto vive implícitamente en `expenses.tags[0]`; eso es una convención de aplicación, no una FK explícita.
 - `amount_usd` es dato derivado/auxiliar; la moneda base operativa sigue siendo ARS.
+- El presupuesto activo del mes vive en `monthly_tables.budget`; no hay presupuestos por categoría.
 - Las suscripciones todavía no tienen tabla persistida.
 
 ## Update when

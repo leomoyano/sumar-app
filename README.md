@@ -1,6 +1,6 @@
 # Sumar
 
-Gestor de finanzas personales hecho con React + TypeScript + Supabase para administrar tablas mensuales de gastos, presupuestos por categoría, gastos fijos y asistencia con IA para carga rápida.
+Gestor de finanzas personales hecho con React + TypeScript + Supabase para administrar tablas mensuales de gastos, presupuesto mensual, gastos fijos y asistencia con IA para carga rápida.
 
 ## Estado rápido
 

@@ -38,7 +38,6 @@ Qué cubre hoy `sumar-app` y qué partes todavía están verdes o mockeadas.
 ### 6. Presupuestos
 
 - presupuesto general mensual por tabla
-- presupuestos por categoría
 - cálculo de progreso y estado
 
 ### 7. Visualización y exportación

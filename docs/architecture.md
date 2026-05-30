@@ -69,7 +69,6 @@ Hooks principales:
 
 - `useTables` → `monthly_tables` + `expenses`
 - `useFixedExpenses` → `fixed_expenses`
-- `useBudgets` → `budgets`
 - `useTags` → `profiles.tags`
 - `useDollarRate` → API externa `https://dolarapi.com/v1/dolares/blue`
 
@@ -100,10 +99,7 @@ Observación importante: aunque existe `QueryClientProvider`, la carga principal
 
 ### Presupuestos
 
-`src/pages/Budgets.tsx` mezcla dos niveles:
-
-- presupuesto general mensual guardado en `monthly_tables.budget`
-- presupuestos por categoría guardados en `budgets`
+`src/pages/Budgets.tsx` maneja un único presupuesto mensual guardado en `monthly_tables.budget`. Las categorías siguen existiendo para clasificar gastos y reportes, pero ya no tienen límites presupuestarios propios.
 
 ### Gastos fijos
 
