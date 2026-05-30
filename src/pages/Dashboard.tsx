@@ -406,6 +406,13 @@ const Dashboard = () => {
             </Button>
           </Link>
 
+          <Link to="/market">
+            <Button variant="outline" className="gap-2 w-full sm:w-auto">
+              <DollarSign className="h-4 w-4" />
+              {language === "es" ? "Mercado" : "Market"}
+            </Button>
+          </Link>
+
           <Dialog open={isDialogOpen} onOpenChange={handleOpenDialog}>
             <DialogTrigger asChild>
               <Button className="gap-2">

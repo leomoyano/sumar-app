@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import ExpenseTable from "./pages/ExpenseTable";
 import FixedExpenses from "./pages/FixedExpenses";
 import Budgets from "./pages/Budgets";
+import Market from "./pages/Market";
 import Subscriptions from "./pages/Subscriptions";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -99,6 +100,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Budgets />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/market"
+      element={
+        <ProtectedRoute>
+          <Market />
         </ProtectedRoute>
       }
     />
