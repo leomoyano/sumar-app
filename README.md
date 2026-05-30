@@ -1,63 +1,61 @@
-# Sumar 🚀
+# Sumar
 
-**Sumar** es tu gestor inteligente de finanzas personales, diseñado para ayudarte a tomar el control total de tus gastos mensuales con una estética moderna, limpia y premium.
+Gestor de finanzas personales hecho con React + TypeScript + Supabase para administrar tablas mensuales de gastos, presupuestos por categoría, gastos fijos y asistencia con IA para carga rápida.
 
-## ✨ Características Principal
+## Estado rápido
 
-- **Barra Inteligente (IA)**: Carga gastos usando lenguaje natural (ej: "Ayer gasté 45k en una cena") gracias a Groq (Llama 3.3).
-- **Categorización Automática**: La IA identifica etiquetas y categorías por vos.
-- **Doble Moneda (ARS/USD)**: Conversión automática basada en el Dólar Blue para entender el valor real de tus gastos.
-- **Gastos Fijos**: Automatiza la carga de tus gastos fijos (alquiler, servicios, suscripciones) en cada nueva tabla mensual.
-- **Análisis Visual**: Gráficos dinámicos para entender la distribución y evolución de tus finanzas.
-- **Exportación a PDF**: Genera reportes detallados de tus tablas de gastos con un clic.
-- **Privacidad Total**: Tus datos se gestionan de forma segura a través de Supabase.
+- **Stack oficial**: Vite, React 18, TypeScript, Tailwind CSS, Radix UI/shadcn-style, Supabase.
+- **Package manager oficial**: `npm`.
+- **Base de datos/Auth**: Supabase.
+- **Documentación humana**: [`docs/README.md`](docs/README.md).
+- **Contexto machine-oriented**: `.atl/`.
 
-## 🛠️ Tecnologías
+## Quickstart
 
-Este proyecto está construido con un stack moderno y profesional:
-
-- **Frontend**: [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
-- **Componentes UI**: [Shadcn/UI](https://ui.shadcn.com/)
-- **Iconografía**: [Lucide React](https://lucide.dev/)
-- **Inteligencia Artificial**: [Groq](https://groq.com/) (Llama 3.3)
-- **Base de Datos & Auth**: [Supabase](https://supabase.com/)
-- **Estado**: [Zustand](https://docs.pmnd.rs/zustand/) & [TanStack Query](https://tanstack.com/query/latest)
-
-## 🚀 Inicio Rápido
-
-1. **Instalación**:
+1. Instalá dependencias:
 
    ```bash
    npm install
    ```
 
-2. **Entorno**:
-   Crea un archivo `.env` basado en `.env.example` y agrega tus credenciales de Supabase.
+2. Creá tu entorno local desde `.env.example`.
 
-3. **Desarrollo**:
+3. Levantá el proyecto:
 
    ```bash
    npm run dev
    ```
 
-4. **Producción**:
-   ```bash
-   npm run build
-   ```
+## Variables de entorno
 
-## 🔐 Configuración de Supabase
+Copiá `.env.example` y completá:
 
-Este proyecto requiere una instancia de Supabase con las siguientes tablas:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_GROQ_API_KEY`
+- `VITE_AUTH_REDIRECT_URL`
+- `VITE_PASSWORD_RESET_REDIRECT_URL`
 
-- `expenses`
-- `monthly_tables`
-- `fixed_expenses`
-- `budgets`
+> Nota: el cliente Supabase también acepta `VITE_SUPABASE_PUBLISHABLE_KEY` como fallback, pero el baseline actual del repo documenta `VITE_SUPABASE_ANON_KEY` porque es la variable declarada en `.env.example` y en CI.
 
-Las migraciones se encuentran en la carpeta `/supabase/migrations`.
+## Comandos oficiales
 
----
+```bash
+npm run dev
+npm run lint
+npm run build
+npm run preview
+```
 
-_Desarrollado con ❤️ para ayudarte a sumar mejores decisiones financieras._
+## Dónde seguir
+
+- [`docs/README.md`](docs/README.md) — índice documental para onboarding y continuidad.
+- [`docs/onboarding.md`](docs/onboarding.md) — setup local paso a paso.
+- [`docs/architecture.md`](docs/architecture.md) — arquitectura frontend, auth y flujo de datos.
+- [`docs/data-model.md`](docs/data-model.md) — entidades reales y migraciones Supabase.
+- [`docs/product-scope.md`](docs/product-scope.md) — alcance actual, partes parciales y deudas visibles.
+- [`docs/deployment-runbook.md`](docs/deployment-runbook.md) — CI, secretos, deploy y rollback.
+
+## Update when
+
+Actualizá este README cuando cambie el entrypoint para humanos: propuesta de valor, stack oficial, comandos soportados, variables mínimas o links principales hacia `docs/`.
