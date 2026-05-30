@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      arca_monotributo_categories: {
+        Row: {
+          annual_income_limit: number
+          category: string
+          created_at: string
+          effective_from: string
+          health_insurance_contribution: number
+          id: string
+          service_integrated_tax: number
+          service_total: number
+          sipa_contribution: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          annual_income_limit: number
+          category: string
+          created_at?: string
+          effective_from: string
+          health_insurance_contribution: number
+          id?: string
+          service_integrated_tax: number
+          service_total: number
+          sipa_contribution: number
+          sort_order: number
+          updated_at?: string
+        }
+        Update: {
+          annual_income_limit?: number
+          category?: string
+          created_at?: string
+          effective_from?: string
+          health_insurance_contribution?: number
+          id?: string
+          service_integrated_tax?: number
+          service_total?: number
+          sipa_contribution?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
