@@ -142,7 +142,8 @@ export default {
         '250': '250ms'
       },
       transitionTimingFunction: {
-        'ease-out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)'
+        'ease-out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'ease-drawer': 'cubic-bezier(0.32, 0.72, 0, 1)'
       }
     }
   },
