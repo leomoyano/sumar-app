@@ -52,6 +52,13 @@ Qué cubre hoy `sumar-app` y qué partes todavía están verdes o mockeadas.
 - ranking top 5 para vender 1 USDT y recibir ARS entre wallets elegidas por el usuario, excluyendo P2P
 - calculadora rápida para saber cuánto es X% de un monto
 
+### 9. ARCA
+
+- estimación de monotributo para prestación de servicios
+- ingreso mensual en ARS o USD, convirtiendo USD por dólar oficial
+- categoría actual, categoría sugerida, margen anual y cuota mensual
+- Ingresos Brutos Tucumán opcional con alícuota editable, por defecto 5%
+
 ## Áreas parciales o mock
 
 ### Suscripciones

@@ -38,6 +38,7 @@ Rutas protegidas actuales:
 - `/fixed-expenses`
 - `/budgets`
 - `/market`
+- `/arca`
 - `/subscriptions`
 - `/settings`
 - `/profile`
@@ -73,6 +74,8 @@ Hooks principales:
 - `useTags` → `profiles.tags`
 - `useDollarRate` → API externa `https://dolarapi.com/v1/dolares/blue`
 - `useMarketRates` → CryptoYa dólar oficial/blue + ranking USDT/ARS por proveedor
+- `useArcaCategories` → categorías de monotributo ARCA desde Supabase con fallback local
+- `useOfficialDollarRate` → dólar oficial CryptoYa para estimaciones ARCA con ingresos USD
 
 Observación importante: aunque existe `QueryClientProvider`, la carga principal de datos hoy NO usa React Query; los hooks manejan estado con `useState/useEffect/useCallback` y pegan directo a Supabase.
 
@@ -107,6 +110,10 @@ Observación importante: aunque existe `QueryClientProvider`, la carga principal
 
 `src/pages/Market.tsx` muestra cotizaciones de referencia y herramientas rápidas: dólar oficial, dólar blue, mejor venta de 1 USDT a ARS, ranking top 5 por `totalBid` desde CryptoYa entre proveedores elegidos por el usuario, sin P2P, y calculadora de porcentajes.
 
+### ARCA
+
+`src/pages/Arca.tsx` estima categoría de monotributo para prestación de servicios. Toma ingreso mensual en ARS o USD, convierte USD a ARS con dólar oficial, compara contra categorías vigentes, calcula cuota mensual, IIBB Tucumán opcional al 5% editable y carga fiscal estimada.
+
 ### Gastos fijos
 
 `src/hooks/useFixedExpenses.ts` y la página asociada modelan recurrencia mensual, activación/desactivación, día de vencimiento y marca de pago.
@@ -121,6 +128,7 @@ Observación importante: aunque existe `QueryClientProvider`, la carga principal
 - **Groq**: parseo de gasto en lenguaje natural y detección de gastos olvidados (`src/services/ai.ts`).
 - **DolarAPI**: cotización blue para referencia ARS/USD.
 - **CryptoYa**: cotización oficial/blue y valores USDT/ARS por proveedor para la pantalla Mercado.
+- **CryptoYa**: dólar oficial para estimaciones ARCA cuando el ingreso se carga en USD.
 
 ## Límites actuales del frontend
 

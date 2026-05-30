@@ -87,6 +87,25 @@ Notas:
 - La UI actual modela la recurrencia solamente como mensual.
 - Se usan al momento de crear una nueva tabla mensual para precargar gastos.
 
+### `arca_monotributo_categories`
+
+Tabla de referencia pública para categorías ARCA/monotributo.
+
+Campos relevantes:
+
+- `effective_from`
+- `category`
+- `annual_income_limit`
+- `service_integrated_tax`
+- `sipa_contribution`
+- `health_insurance_contribution`
+- `service_total`
+
+Notas:
+
+- La versión inicial carga valores vigentes desde `2026-02-01` para prestación de servicios.
+- La pantalla ARCA usa fallback local si la tabla todavía no está disponible.
+
 ## Relaciones
 
 | Origen | Relación | Destino |
@@ -113,6 +132,7 @@ Todas las entidades principales habilitan **Row Level Security** y filtran por `
 | `20260211024500_*.sql` | `monthly_tables.budget`. |
 | `20260309193000_*.sql` | `fixed_expenses.due_day`, `billing_cycle`, `last_paid_at`. |
 | `20260530013000_*.sql` | elimina `budgets` para dejar un único presupuesto mensual en `monthly_tables.budget`. |
+| `20260530154500_*.sql` | `arca_monotributo_categories` con categorías vigentes ARCA para prestación de servicios. |
 
 ## Observaciones de diseño
 
