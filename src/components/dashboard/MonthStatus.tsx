@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useBudgets } from "@/hooks/useBudgets";
 import { useTables } from "@/hooks/useTables";
 import { formatARS } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +24,6 @@ interface MonthStatusProps {
 
 const MonthStatus = ({ userId }: MonthStatusProps) => {
   const { language } = useLanguage();
-  const { isLoading: isLoadingBudgets } = useBudgets(userId);
   const { tables, isLoading: isLoadingTables } = useTables(userId);
 
   // 1. Lógica para identificar "éste mes"
@@ -152,7 +150,7 @@ const MonthStatus = ({ userId }: MonthStatusProps) => {
     };
   }, [tables]);
 
-  if (isLoadingBudgets || isLoadingTables) {
+  if (isLoadingTables) {
     return <Card className="w-full h-48 animate-pulse bg-muted/50" />;
   }
 

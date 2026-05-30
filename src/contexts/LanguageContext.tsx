@@ -123,20 +123,19 @@ const translations: Record<Language, Record<string, string>> = {
     "export.pdf.success": "PDF descargado correctamente",
     "export.pdf.noExpenses": "No hay gastos para exportar",
 
-    // Budgets
-    "budget.title": "Presupuestos",
-    "budget.add": "Agregar Presupuesto",
-    "budget.edit": "Editar Límite",
-    "budget.category": "Categoría",
-    "budget.limit": "Límite Mensual",
+    // Budget
+    "budget.title": "Presupuesto",
+    "budget.add": "Definir Presupuesto",
+    "budget.edit": "Editar Presupuesto",
+    "budget.limit": "Presupuesto Mensual",
     "budget.spent": "Gastado",
     "budget.remaining": "Restante",
     "budget.exceeded": "Excedido",
     "budget.warning": "Cerca del límite",
     "budget.safe": "Dentro del presupuesto",
-    "budget.empty": "No tienes presupuestos configurados",
+    "budget.empty": "No tenés presupuesto configurado",
     "budget.progress": "Progreso del Presupuesto",
-    "budget.total": "Presupuesto Total",
+    "budget.total": "Presupuesto Mensual",
 
     // Common
     "common.loading": "Cargando...",
@@ -267,20 +266,19 @@ const translations: Record<Language, Record<string, string>> = {
     "export.pdf.success": "PDF downloaded successfully",
     "export.pdf.noExpenses": "No expenses to export",
 
-    // Budgets
-    "budget.title": "Budgets",
-    "budget.add": "Add Budget",
-    "budget.edit": "Edit Limit",
-    "budget.category": "Category",
-    "budget.limit": "Monthly Limit",
+    // Budget
+    "budget.title": "Budget",
+    "budget.add": "Set Budget",
+    "budget.edit": "Edit Budget",
+    "budget.limit": "Monthly Budget",
     "budget.spent": "Spent",
     "budget.remaining": "Remaining",
     "budget.exceeded": "Exceeded",
     "budget.warning": "Near limit",
     "budget.safe": "Within budget",
-    "budget.empty": "You don't have any budgets configured",
+    "budget.empty": "You don't have a budget configured",
     "budget.progress": "Budget Progress",
-    "budget.total": "Total Budget",
+    "budget.total": "Monthly Budget",
 
     // Common
     "common.loading": "Loading...",
