@@ -46,6 +46,12 @@ Qué cubre hoy `sumar-app` y qué partes todavía están verdes o mockeadas.
 - exportación PDF de tablas
 - cotización de dólar blue para referencia
 
+### 8. Mercado
+
+- dólar oficial y blue como referencia
+- ranking top 5 para vender 1 USDT y recibir ARS entre wallets elegidas por el usuario, excluyendo P2P
+- calculadora rápida para saber cuánto es X% de un monto
+
 ## Áreas parciales o mock
 
 ### Suscripciones

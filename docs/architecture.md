@@ -37,6 +37,7 @@ Rutas protegidas actuales:
 - `/table/:tableId`
 - `/fixed-expenses`
 - `/budgets`
+- `/market`
 - `/subscriptions`
 - `/settings`
 - `/profile`
@@ -71,6 +72,7 @@ Hooks principales:
 - `useFixedExpenses` → `fixed_expenses`
 - `useTags` → `profiles.tags`
 - `useDollarRate` → API externa `https://dolarapi.com/v1/dolares/blue`
+- `useMarketRates` → CryptoYa dólar oficial/blue + ranking USDT/ARS por proveedor
 
 Observación importante: aunque existe `QueryClientProvider`, la carga principal de datos hoy NO usa React Query; los hooks manejan estado con `useState/useEffect/useCallback` y pegan directo a Supabase.
 
@@ -101,6 +103,10 @@ Observación importante: aunque existe `QueryClientProvider`, la carga principal
 
 `src/pages/Budgets.tsx` maneja un único presupuesto mensual guardado en `monthly_tables.budget`. Las categorías siguen existiendo para clasificar gastos y reportes, pero ya no tienen límites presupuestarios propios.
 
+### Mercado
+
+`src/pages/Market.tsx` muestra cotizaciones de referencia y herramientas rápidas: dólar oficial, dólar blue, mejor venta de 1 USDT a ARS, ranking top 5 por `totalBid` desde CryptoYa entre proveedores elegidos por el usuario, sin P2P, y calculadora de porcentajes.
+
 ### Gastos fijos
 
 `src/hooks/useFixedExpenses.ts` y la página asociada modelan recurrencia mensual, activación/desactivación, día de vencimiento y marca de pago.
@@ -114,6 +120,7 @@ Observación importante: aunque existe `QueryClientProvider`, la carga principal
 - **Supabase**: auth, persistencia y tipado generado.
 - **Groq**: parseo de gasto en lenguaje natural y detección de gastos olvidados (`src/services/ai.ts`).
 - **DolarAPI**: cotización blue para referencia ARS/USD.
+- **CryptoYa**: cotización oficial/blue y valores USDT/ARS por proveedor para la pantalla Mercado.
 
 ## Límites actuales del frontend
 
